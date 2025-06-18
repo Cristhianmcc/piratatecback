@@ -21,11 +21,9 @@ connectDB();
 
 const app = express();
 
-// Configuración CORS
+// Configuración CORS - Permitir todos los orígenes temporalmente para solucionar el problema
 const corsOptions = {
-  origin: process.env.NODE_ENV === 'production' 
-    ? process.env.CORS_ORIGIN.split(',') // En producción, usar los orígenes definidos
-    : '*', // En desarrollo, permitir todas las solicitudes
+  origin: '*', // Permitir todas las solicitudes temporalmente
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true,
   optionsSuccessStatus: 204,
@@ -35,6 +33,19 @@ const corsOptions = {
 
 // Middlewares
 app.use(cors(corsOptions));
+
+// Middleware adicional para asegurar que los encabezados CORS se aplican a todas las respuestas
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
+  
+  // Manejar preflight OPTIONS
+  if (req.method === 'OPTIONS') {
+    return res.status(204).send();
+  }
+  next();
+});
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
