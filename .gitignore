@@ -1,0 +1,48 @@
+# Dependencias
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# Entorno
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Carpetas de subida
+uploads/*
+!uploads/placeholders/
+!uploads/placeholder.jpg
+tmp/*
+!tmp/.gitkeep
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Archivos de cobertura
+coverage/
+
+# IDEs y editores
+/.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+.vscode/*
+
+# Misc
+.tmp/
+.temp/
