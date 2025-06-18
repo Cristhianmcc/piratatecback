@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Prueba de Login Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; background: #f8f9fa; }
+    .container { max-width: 800px; margin: auto; }
+    .card { border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); margin-bottom: 20px; }
+    .card-header { background-color: #fff; border-bottom: 1px solid #eee; font-weight: 600; }
+    pre { background: #f8f9fa; padding: 15px; border-radius: 5px; font-size: 14px; overflow: auto; }
+    .btn-primary { background-color: #0d6efd; }
+    .status-indicator { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+    .status-success { background-color: #198754; }
+    .status-error { background-color: #dc3545; }
+    .status-pending { background-color: #ffc107; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="mb-4 d-flex align-items-center">
+      <i class="fas fa-skull-crossbones me-2"></i> Pirata Tech - Diagnóstico API
+    </h1>
+    
+    <div class="card mb-4">
+      <div class="card-header py-3">
+        <i class="fas fa-key me-2"></i>Prueba de Login Admin
+      </div>
+      <div class="card-body">
+        <div id="savedAuth" class="mb-3">
+          <!-- Se mostrará aquí si hay sesión activa -->
+        </div>
+        
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email" value="admin@admin.com">
+            <div class="form-text">Por defecto: admin@admin.com</div>
+          </div>
+          <div class="col-md-6">
+            <label for="password" class="form-label">Contraseña</label>
+            <input type="password" class="form-control" id="password" value="admin123">
+            <div class="form-text">Por defecto: admin123</div>
+          </div>
+        </div>
+        
+        <div class="mt-3">
+          <button class="btn btn-primary" onclick="login()">
+            <i class="fas fa-sign-in-alt me-2"></i>Iniciar sesión
+          </button>
+          <button class="btn btn-outline-primary ms-2" onclick="checkApi()">
+            <i class="fas fa-server me-2"></i>Verificar API
+          </button>
+          <button class="btn btn-outline-secondary ms-2" onclick="clearResult()">
+            <i class="fas fa-eraser me-2"></i>Limpiar
+          </button>
+        </div>
+        
+        <div class="mt-4">
+          <h5>Resultado:</h5>
+          <pre id="result">Esperando acción...</pre>
+        </div>
+        
+        <div class="mt-3 d-flex flex-wrap gap-2" id="actionButtons">
+          <!-- Botones de acción después de login -->
+        </div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-header py-3">
+        <i class="fas fa-server me-2"></i>Estado del Sistema
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <h5 class="mb-0">API</h5>
+                <span id="apiStatus"><span class="status-indicator status-pending"></span>Pendiente</span>
+              </div>
+              <button class="btn btn-sm btn-outline-primary" onclick="checkApi()">
+                <i class="fas fa-sync-alt me-1"></i>Verificar API
+              </button>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <h5 class="mb-0">Directorios</h5>
+                <span id="dirsStatus"><span class="status-indicator status-pending"></span>Pendiente</span>
+              </div>
+              <button class="btn btn-sm btn-outline-primary" onclick="checkDirectories()">
+                <i class="fas fa-folder me-1"></i>Verificar Directorios
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="mt-2" id="directoryDetails">
+          <!-- Detalles de directorios -->
+        </div>
+      </div>
+    </div>
+    
+    <div class="d-flex justify-content-between mt-4">
+      <a href="login.html" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Volver a Login
+      </a>
+      <a href="dashboard.html" class="btn btn-outline-primary" id="dashboardBtn">
+        <i class="fas fa-tachometer-alt me-2"></i>Ir al Dashboard
+      </a>
+    </div>
+  </div>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Comprobar token guardado
+      const token = localStorage.getItem('adminToken');
+      const user = JSON.parse(localStorage.getItem('adminUser') || '{}');
+      
+      if (token && (user.username || user.name || user.email)) {
+        document.getElementById('savedAuth').innerHTML = `
+          <div class="alert alert-info mb-0">
+            <i class="fas fa-info-circle me-2"></i>
+            Ya tienes una sesión iniciada como <strong>${user.name || user.username || user.email}</strong>
+            <div class="mt-2">
+              <button class="btn btn-sm btn-primary me-2" onclick="goToDashboard()">
+                Ir al Dashboard
+              </button>
+              <button class="btn btn-sm btn-outline-danger" onclick="logout()">
+                Cerrar Sesión
+              </button>
+            </div>
+          </div>
+        `;
+        
+        updateActionButtons(true);
+      } else {
+        updateActionButtons(false);
+      }
+    });
+    
+    function login() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const result = document.getElementById('result');
+      
+      result.textContent = 'Enviando solicitud...';
+      
+      fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      })
+      .then(response => {
+        result.textContent += `\nStatus: ${response.status}`;
+        return response.json();
+      })
+      .then(data => {
+        result.textContent += `\nRespuesta: ${JSON.stringify(data, null, 2)}`;
+        
+        if (data.token) {
+          result.textContent += '\n\nLogin exitoso! Guardando token...';
+          localStorage.setItem('adminToken', data.token);
+          localStorage.setItem('adminUser', JSON.stringify(data.user));
+          
+          // Actualizar mensaje de sesión activa
+          const user = data.user;
+          document.getElementById('savedAuth').innerHTML = `
+            <div class="alert alert-success mb-0">
+              <i class="fas fa-check-circle me-2"></i>
+              Sesión iniciada como <strong>${user.name || user.username || user.email}</strong>
+              <div class="mt-2">
+                <button class="btn btn-sm btn-primary me-2" onclick="goToDashboard()">
+                  Ir al Dashboard
+                </button>
+                <button class="btn btn-sm btn-outline-danger" onclick="logout()">
+                  Cerrar Sesión
+                </button>
+              </div>
+            </div>
+          `;
+          
+          updateActionButtons(true);
+        }
+      })
+      .catch(error => {
+        result.textContent += `\nError: ${error.message}`;
+        updateActionButtons(false);
+      });
+    }
+    
+    function logout() {
+      localStorage.removeItem('adminToken');
+      localStorage.removeItem('adminUser');
+      document.getElementById('savedAuth').innerHTML = '';
+      document.getElementById('result').textContent = 'Sesión cerrada correctamente';
+      updateActionButtons(false);
+    }
+    
+    function clearResult() {
+      document.getElementById('result').textContent = 'Resultado limpiado';
+    }
+    
+    function goToDashboard() {
+      window.location.href = 'dashboard.html';
+    }
+    
+    function updateActionButtons(isLoggedIn) {
+      const actionButtons = document.getElementById('actionButtons');
+      
+      if (isLoggedIn) {
+        actionButtons.innerHTML = `
+          <button class="btn btn-outline-primary" onclick="testPrograms()">
+            <i class="fas fa-laptop-code me-2"></i>Probar API Programas
+          </button>
+          <button class="btn btn-outline-success" onclick="goToDashboard()">
+            <i class="fas fa-tachometer-alt me-2"></i>Ir al Dashboard
+          </button>
+          <button class="btn btn-outline-danger" onclick="logout()">
+            <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+          </button>
+        `;
+      } else {
+        actionButtons.innerHTML = '';
+      }
+    }
+    
+    function checkApi() {
+      const result = document.getElementById('result');
+      const apiStatus = document.getElementById('apiStatus');
+      
+      result.textContent = 'Verificando API...';
+      apiStatus.innerHTML = '<span class="status-indicator status-pending"></span>Verificando...';
+      
+      fetch('/api/check/check')
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            result.textContent += `\nAPI funcionando correctamente.\nTimestamp: ${data.timestamp}`;
+            apiStatus.innerHTML = '<span class="status-indicator status-success"></span>Operativa';
+          } else {
+            throw new Error('La API respondió con un error');
+          }
+        })
+        .catch(error => {
+          result.textContent += `\nError al verificar API: ${error.message}`;
+          apiStatus.innerHTML = '<span class="status-indicator status-error"></span>Error';
+        });
+    }
+    
+    function checkDirectories() {
+      const result = document.getElementById('result');
+      const dirsStatus = document.getElementById('dirsStatus');
+      const directoryDetails = document.getElementById('directoryDetails');
+      
+      result.textContent = 'Verificando directorios...';
+      dirsStatus.innerHTML = '<span class="status-indicator status-pending"></span>Verificando...';
+      
+      fetch('/api/check/check-dirs')
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // Actualizar estado general
+            const allOk = data.directories.every(dir => dir.exists && dir.writable);
+            dirsStatus.innerHTML = allOk 
+              ? '<span class="status-indicator status-success"></span>OK'
+              : '<span class="status-indicator status-error"></span>Problemas';
+            
+            // Mostrar detalles
+            let html = '<div class="list-group mt-3">';
+            data.directories.forEach(dir => {
+              const statusClass = dir.exists && dir.writable ? 'success' : 'danger';
+              const icon = dir.exists && dir.writable ? 'check-circle' : 'exclamation-circle';
+              
+              html += `
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                  <div>
+                    <i class="fas fa-folder me-2 text-warning"></i>
+                    ${dir.name}
+                    <small class="d-block text-muted">${dir.path}</small>
+                  </div>
+                  <span class="badge bg-${statusClass} rounded-pill">
+                    <i class="fas fa-${icon}"></i> 
+                    ${dir.exists ? (dir.writable ? 'OK' : 'Sin permisos') : 'No existe'}
+                  </span>
+                </div>
+              `;
+            });
+            html += '</div>';
+            directoryDetails.innerHTML = html;
+            
+            // Actualizar resultado
+            result.textContent += `\nVerificación de directorios completada.`;
+            result.textContent += `\nTotal: ${data.directories.length}`;
+            result.textContent += `\nOK: ${data.directories.filter(d => d.exists && d.writable).length}`;
+            result.textContent += `\nProblemas: ${data.directories.filter(d => !d.exists || !d.writable).length}`;
+          } else {
+            throw new Error('Error al verificar directorios');
+          }
+        })
+        .catch(error => {
+          result.textContent += `\nError al verificar directorios: ${error.message}`;
+          dirsStatus.innerHTML = '<span class="status-indicator status-error"></span>Error';
+          directoryDetails.innerHTML = '';
+        });
+    }
+    
+    function testPrograms() {
+      const token = localStorage.getItem('adminToken');
+      const result = document.getElementById('result');
+      
+      if (!token) {
+        result.textContent = 'Error: No hay token de autenticación';
+        return;
+      }
+      
+      result.textContent = 'Consultando API de programas...';
+      
+      fetch('/api/admin/programs?limit=5', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => {
+        result.textContent += `\nStatus: ${response.status}`;
+        return response.json();
+      })
+      .then(data => {
+        if (data.programs) {
+          result.textContent += `\nProgramas encontrados: ${data.programs.length}`;
+          result.textContent += `\nTotal: ${data.total || 'N/A'}`;
+          
+          if (data.programs.length > 0) {
+            result.textContent += `\n\nPrimer programa:\n${JSON.stringify(data.programs[0], null, 2)}`;
+          }
+        } else {
+          result.textContent += `\nRespuesta completa: ${JSON.stringify(data, null, 2)}`;
+        }
+      })
+      .catch(error => {
+        result.textContent += `\nError: ${error.message}`;
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,1488 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="refresh" content="0;url=login.html">
+  <title>Panel de Administración - Pirata Tecnológico</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">  <style>
+    :root {
+      --primary: #0d6efd;
+      --secondary: #6c757d;
+      --success: #198754;
+      --warning: #ffc107;
+      --danger: #dc3545;
+      --dark: #212529;
+    }
+  </style>
+  
+  <script>
+    // Verificando si hay un token guardado y redirigiendo según corresponda
+    window.onload = function() {
+      const token = localStorage.getItem('adminToken');
+      if (token) {
+        window.location.href = 'dashboard.html';
+      } else {
+        window.location.href = 'login.html';
+      }
+    }
+  </script>
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f5f5f5;
+      padding-top: 56px;
+    }
+    
+    .sidebar {
+      position: fixed;
+      top: 56px;
+      left: 0;
+      width: 250px;
+      height: calc(100vh - 56px);
+      background-color: var(--dark);
+      color: white;
+      padding: 20px 0;
+      overflow-y: auto;
+      transition: transform 0.3s;
+      z-index: 1000;
+    }
+    
+    .sidebar-hidden {
+      transform: translateX(-100%);
+    }
+    
+    .content {
+      margin-left: 250px;
+      padding: 20px;
+      transition: margin-left 0.3s;
+    }
+    
+    .content-full {
+      margin-left: 0;
+    }
+    
+    .sidebar-link {
+      color: rgba(255, 255, 255, 0.8);
+      text-decoration: none;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      border-left: 3px solid transparent;
+      transition: all 0.2s;
+    }
+    
+    .sidebar-link i {
+      margin-right: 10px;
+    }
+    
+    .sidebar-link:hover, .sidebar-link.active {
+      color: white;
+      background-color: rgba(255, 255, 255, 0.1);
+      border-left: 3px solid var(--primary);
+    }
+    
+    .card {
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+    
+    .card-header {
+      font-weight: bold;
+    }
+    
+    .stats-card {
+      border-left: 4px solid var(--primary);
+    }
+    
+    .table img {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 5px;
+    }
+    
+    .form-label {
+      font-weight: 500;
+    }
+    
+    .preview-image {
+      max-width: 200px;
+      max-height: 200px;
+      margin-top: 10px;
+      border-radius: 5px;
+      object-fit: cover;
+    }
+    
+    .screenshots-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    
+    .screenshot-preview {
+      position: relative;
+      width: 150px;
+      height: 85px;
+    }
+    
+    .screenshot-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 5px;
+    }
+    
+    .screenshot-preview .delete-btn {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background-color: rgba(220, 53, 69, 0.8);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 25px;
+      height: 25px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .spinner-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+    }
+    
+    .spinner-container {
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+      
+      .sidebar-visible {
+        transform: translateX(0);
+      }
+      
+      .content {
+        margin-left: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">🏴‍☠️ Pirata Tecnológico - Admin</a>
+      <button id="sidebarToggle" class="btn btn-dark d-md-none">
+        <i class="fas fa-bars"></i>
+      </button>
+      <div class="collapse navbar-collapse">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+              <i class="fas fa-user-circle"></i> Admin
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="#"><i class="fas fa-cog"></i> Configuración</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><button class="dropdown-item" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</button></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="px-3 py-2 mb-3">
+      <small class="text-muted text-uppercase">Menú Principal</small>
+    </div>
+    
+    <a href="#" class="sidebar-link active" data-page="dashboard">
+      <i class="fas fa-tachometer-alt"></i> Dashboard
+    </a>
+    
+    <a href="#" class="sidebar-link" data-page="programs">
+      <i class="fas fa-desktop"></i> Programas
+    </a>
+    
+    <a href="#" class="sidebar-link" data-page="add-program">
+      <i class="fas fa-plus-circle"></i> Añadir Programa
+    </a>
+    
+    <a href="#" class="sidebar-link" data-page="import">
+      <i class="fas fa-file-import"></i> Importar
+    </a>
+    
+    <div class="px-3 py-2 mt-4 mb-1">
+      <small class="text-muted text-uppercase">Configuración</small>
+    </div>
+    
+    <a href="#" class="sidebar-link" data-page="profile">
+      <i class="fas fa-user-cog"></i> Perfil
+    </a>
+    
+    <a href="#" class="sidebar-link" id="logoutLink">
+      <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+    </a>
+  </div>
+
+  <!-- Main Content -->
+  <div class="content">
+    <div class="container-fluid">
+      <!-- Dashboard (página principal) -->
+      <div class="page-content" id="dashboard-page">
+        <h1 class="mb-4">Dashboard</h1>
+        
+        <!-- Estadísticas generales -->
+        <div class="row">
+          <div class="col-md-3 col-sm-6 mb-4">
+            <div class="card stats-card h-100">
+              <div class="card-body">
+                <h5 class="card-title text-muted">Total Programas</h5>
+                <h2 class="display-6" id="totalPrograms">0</h2>
+                <p class="card-text text-success">
+                  <i class="fas fa-arrow-up"></i> <span id="newProgramsCount">0</span> nuevos este mes
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-3 col-sm-6 mb-4">
+            <div class="card stats-card h-100" style="border-left-color: var(--success)">
+              <div class="card-body">
+                <h5 class="card-title text-muted">Descargas Totales</h5>
+                <h2 class="display-6" id="totalDownloads">0</h2>
+                <p class="card-text text-success">
+                  <i class="fas fa-arrow-up"></i> <span id="newDownloadsCount">0</span> este mes
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-3 col-sm-6 mb-4">
+            <div class="card stats-card h-100" style="border-left-color: var(--warning)">
+              <div class="card-body">
+                <h5 class="card-title text-muted">Categorías</h5>
+                <h2 class="display-6" id="categoriesCount">0</h2>
+                <p class="card-text text-muted">
+                  <span id="topCategory">-</span> es la más popular
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-3 col-sm-6 mb-4">
+            <div class="card stats-card h-100" style="border-left-color: var(--danger)">
+              <div class="card-body">
+                <h5 class="card-title text-muted">Plataformas</h5>
+                <h2 class="display-6" id="platformsCount">0</h2>
+                <p class="card-text text-muted">
+                  <span id="topPlatform">-</span> es la más común
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Gráficos y Tablas -->
+        <div class="row">
+          <div class="col-lg-8 mb-4">
+            <div class="card">
+              <div class="card-header">
+                <i class="fas fa-chart-bar me-1"></i>
+                Distribución por Categorías
+              </div>
+              <div class="card-body">
+                <canvas id="categoryChart" width="100%" height="50"></canvas>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-lg-4 mb-4">
+            <div class="card">
+              <div class="card-header">
+                <i class="fas fa-chart-pie me-1"></i>
+                Distribución por Plataforma
+              </div>
+              <div class="card-body">
+                <canvas id="platformChart" width="100%" height="100"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="row">
+          <div class="col-xl-6 mb-4">
+            <div class="card">
+              <div class="card-header">
+                <i class="fas fa-download me-1"></i>
+                Programas Más Descargados
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-striped" id="topDownloadsTable">
+                    <thead>
+                      <tr>
+                        <th>Programa</th>
+                        <th>Descargas</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <!-- Se llenará mediante JavaScript -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-xl-6 mb-4">
+            <div class="card">
+              <div class="card-header">
+                <i class="fas fa-plus-circle me-1"></i>
+                Añadidos Recientemente
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-striped" id="recentlyAddedTable">
+                    <thead>
+                      <tr>
+                        <th>Programa</th>
+                        <th>Fecha</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <!-- Se llenará mediante JavaScript -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Lista de Programas -->
+      <div class="page-content d-none" id="programs-page">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h1>Programas</h1>
+          <a href="#" class="btn btn-primary" data-page="add-program">
+            <i class="fas fa-plus-circle"></i> Añadir Programa
+          </a>
+        </div>
+        
+        <!-- Filtros -->
+        <div class="card mb-4">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-4 mb-2">
+                <input type="text" id="searchInput" class="form-control" placeholder="Buscar programas...">
+              </div>
+              <div class="col-md-3 mb-2">
+                <select id="categoryFilter" class="form-select">
+                  <option value="">Todas las categorías</option>
+                  <option value="Productividad">Productividad</option>
+                  <option value="Diseño">Diseño</option>
+                  <option value="Seguridad">Seguridad</option>
+                  <option value="Multimedia">Multimedia</option>
+                  <option value="Desarrollo">Desarrollo</option>
+                  <option value="Juegos">Juegos</option>
+                  <option value="Utilidades">Utilidades</option>
+                  <option value="Internet">Internet</option>
+                  <option value="Comunicación">Comunicación</option>
+                  <option value="Otros">Otros</option>
+                </select>
+              </div>
+              <div class="col-md-3 mb-2">
+                <select id="platformFilter" class="form-select">
+                  <option value="">Todas las plataformas</option>
+                  <option value="Windows">Windows</option>
+                  <option value="MacOS">MacOS</option>
+                  <option value="Linux">Linux</option>
+                  <option value="Android">Android</option>
+                  <option value="iOS">iOS</option>
+                </select>
+              </div>
+              <div class="col-md-2 mb-2">
+                <select id="sortFilter" class="form-select">
+                  <option value="newest">Más recientes</option>
+                  <option value="oldest">Más antiguos</option>
+                  <option value="name_asc">Nombre (A-Z)</option>
+                  <option value="name_desc">Nombre (Z-A)</option>
+                  <option value="downloads">Más descargas</option>
+                  <option value="rating">Mejor valorados</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Tabla de Programas -->
+        <div class="card">
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-striped" id="programsTable">
+                <thead>
+                  <tr>
+                    <th>Imagen</th>
+                    <th>Nombre</th>
+                    <th>Categoría</th>
+                    <th>Versión</th>
+                    <th>Plataforma</th>
+                    <th>Descargas</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Se llenará mediante JavaScript -->
+                </tbody>
+              </table>
+            </div>
+            
+            <!-- Paginación -->
+            <nav>
+              <ul class="pagination justify-content-center" id="programsPagination">
+                <!-- Se llenará mediante JavaScript -->
+              </ul>
+            </nav>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Añadir Programa -->
+      <div class="page-content d-none" id="add-program-page">
+        <h1 class="mb-4">Añadir Nuevo Programa</h1>
+        
+        <div class="card">
+          <div class="card-body">
+            <form id="addProgramForm">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="programName" class="form-label">Nombre del Programa *</label>
+                  <input type="text" class="form-control" id="programName" name="name" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="programVersion" class="form-label">Versión *</label>
+                  <input type="text" class="form-control" id="programVersion" name="version" required>
+                </div>
+              </div>
+              
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="programCategory" class="form-label">Categoría *</label>
+                  <select class="form-select" id="programCategory" name="category" required>
+                    <option value="">Seleccionar categoría</option>
+                    <option value="Productividad">Productividad</option>
+                    <option value="Diseño">Diseño</option>
+                    <option value="Seguridad">Seguridad</option>
+                    <option value="Multimedia">Multimedia</option>
+                    <option value="Desarrollo">Desarrollo</option>
+                    <option value="Juegos">Juegos</option>
+                    <option value="Utilidades">Utilidades</option>
+                    <option value="Internet">Internet</option>
+                    <option value="Comunicación">Comunicación</option>
+                    <option value="Educación">Educación</option>
+                    <option value="Negocios">Negocios</option>
+                    <option value="Fotografía">Fotografía</option>
+                    <option value="Sistema">Sistema</option>
+                    <option value="Otros">Otros</option>
+                  </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="programDeveloper" class="form-label">Desarrollador</label>
+                  <input type="text" class="form-control" id="programDeveloper" name="developer">
+                </div>
+              </div>
+              
+              <div class="mb-3">
+                <label for="programDescription" class="form-label">Descripción Corta *</label>
+                <textarea class="form-control" id="programDescription" name="description" rows="2" required></textarea>
+                <div class="form-text">Una descripción breve del programa (máximo 200 caracteres)</div>
+              </div>
+              
+              <div class="mb-3">
+                <label for="programFullDescription" class="form-label">Descripción Completa</label>
+                <textarea class="form-control" id="programFullDescription" name="fullDescription" rows="6"></textarea>
+                <div class="form-text">Puedes usar HTML para dar formato al texto</div>
+              </div>
+              
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Plataformas *</label>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="Windows" id="platformWindows" name="platform">
+                    <label class="form-check-label" for="platformWindows">Windows</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="MacOS" id="platformMacOS" name="platform">
+                    <label class="form-check-label" for="platformMacOS">MacOS</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="Linux" id="platformLinux" name="platform">
+                    <label class="form-check-label" for="platformLinux">Linux</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="Android" id="platformAndroid" name="platform">
+                    <label class="form-check-label" for="platformAndroid">Android</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="iOS" id="platformiOS" name="platform">
+                    <label class="form-check-label" for="platformiOS">iOS</label>
+                  </div>
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                  <div class="mb-3">
+                    <label for="programSize" class="form-label">Tamaño</label>
+                    <input type="text" class="form-control" id="programSize" name="size" placeholder="Ej: 1.5 GB">
+                  </div>
+                  <div class="mb-3">
+                    <label for="programLicense" class="form-label">Licencia</label>
+                    <input type="text" class="form-control" id="programLicense" name="license" placeholder="Ej: Freeware, Comercial, GPL">
+                  </div>
+                  <div class="mb-3">
+                    <label for="programReleaseDate" class="form-label">Fecha de lanzamiento</label>
+                    <input type="date" class="form-control" id="programReleaseDate" name="releaseDate">
+                  </div>
+                </div>
+              </div>
+              
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="programFeatures" class="form-label">Características</label>
+                  <textarea class="form-control" id="programFeatures" name="features" rows="3" placeholder="Ingresar características separadas por coma"></textarea>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="programTags" class="form-label">Etiquetas</label>
+                  <input type="text" class="form-control" id="programTags" name="tags" placeholder="Ingresar etiquetas separadas por coma">
+                </div>
+              </div>
+              
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="programWebsite" class="form-label">Sitio Web</label>
+                  <input type="url" class="form-control" id="programWebsite" name="website" placeholder="https://ejemplo.com">
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="programDownloadLink" class="form-label">Enlace de Descarga</label>
+                  <input type="url" class="form-control" id="programDownloadLink" name="downloadLink" placeholder="https://ejemplo.com/download">
+                </div>
+              </div>
+              
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="programThumbnail" class="form-label">Imagen en miniatura</label>
+                  <input type="file" class="form-control" id="programThumbnail" name="thumbnail" accept="image/jpeg, image/png, image/webp">
+                  <div class="form-text">Imagen principal del programa (300x300 recomendado)</div>
+                  <img id="thumbnailPreview" class="preview-image d-none">
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="programScreenshots" class="form-label">Capturas de pantalla</label>
+                  <input type="file" class="form-control" id="programScreenshots" name="screenshots" accept="image/jpeg, image/png, image/webp" multiple>
+                  <div class="form-text">Puedes seleccionar múltiples imágenes (hasta 10)</div>
+                  <div id="screenshotsPreview" class="screenshots-container"></div>
+                </div>
+              </div>
+              
+              <h5 class="mt-4 mb-3">Requisitos del Sistema</h5>
+              
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="programMinReq" class="form-label">Requisitos Mínimos</label>
+                  <textarea class="form-control" id="programMinReq" name="requirements.minimal" rows="3" placeholder="Ingresar requisitos separados por línea"></textarea>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="programRecReq" class="form-label">Requisitos Recomendados</label>
+                  <textarea class="form-control" id="programRecReq" name="requirements.recommended" rows="3" placeholder="Ingresar requisitos separados por línea"></textarea>
+                </div>
+              </div>
+              
+              <div class="mb-3">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="programFeatured" name="featured">
+                  <label class="form-check-label" for="programFeatured">
+                    Destacar este programa
+                  </label>
+                </div>
+              </div>
+              
+              <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <button type="button" class="btn btn-secondary me-md-2" data-page="programs">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Guardar Programa</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Importar Programas -->
+      <div class="page-content d-none" id="import-page">
+        <h1 class="mb-4">Importar Programas</h1>
+        
+        <div class="row">
+          <div class="col-md-6 mb-4">
+            <div class="card h-100">
+              <div class="card-header">
+                <i class="fas fa-file-csv me-1"></i>
+                Importar desde CSV
+              </div>
+              <div class="card-body">
+                <p>Sube un archivo CSV con los datos de múltiples programas para importarlos de una vez.</p>
+                <form id="importCsvForm">
+                  <div class="mb-3">
+                    <label for="csvFile" class="form-label">Archivo CSV</label>
+                    <input type="file" class="form-control" id="csvFile" name="csv" accept=".csv" required>
+                  </div>
+                  <div class="form-text mb-3">
+                    <a href="/ejemplo_import.csv" download>Descargar plantilla CSV de ejemplo</a>
+                  </div>
+                  <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-upload me-1"></i> Importar CSV
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-6 mb-4">
+            <div class="card h-100">
+              <div class="card-header">
+                <i class="fas fa-info-circle me-1"></i>
+                Instrucciones
+              </div>
+              <div class="card-body">
+                <h5>Formato del CSV</h5>
+                <p>El archivo CSV debe tener las siguientes columnas:</p>
+                <ul class="small">
+                  <li><strong>name</strong> - Nombre del programa (requerido)</li>
+                  <li><strong>description</strong> - Descripción corta (requerido)</li>
+                  <li><strong>category</strong> - Categoría (requerido)</li>
+                  <li><strong>version</strong> - Versión (requerido)</li>
+                  <li><strong>platform</strong> - Plataformas, separadas por comas</li>
+                  <li><strong>developer</strong> - Desarrollador</li>
+                  <li><strong>license</strong> - Tipo de licencia</li>
+                  <li><strong>size</strong> - Tamaño del archivo</li>
+                  <li><strong>releaseDate</strong> - Fecha de lanzamiento (YYYY-MM-DD)</li>
+                  <li><strong>thumbnail</strong> - URL de la imagen en miniatura</li>
+                  <li><strong>downloadLink</strong> - Enlace de descarga</li>
+                </ul>
+                <div class="alert alert-warning small">
+                  <i class="fas fa-exclamation-triangle me-1"></i>
+                  El proceso puede tomar tiempo dependiendo de la cantidad de programas a importar.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Resultados de importación -->
+        <div class="card d-none" id="importResults">
+          <div class="card-header">
+            <i class="fas fa-clipboard-check me-1"></i>
+            Resultados de la Importación
+          </div>
+          <div class="card-body">
+            <div class="alert alert-success">
+              <i class="fas fa-check-circle me-1"></i>
+              <span id="importSuccessMessage">0 programas importados correctamente</span>
+            </div>
+            <div id="importErrorsContainer" class="alert alert-danger d-none">
+              <i class="fas fa-exclamation-circle me-1"></i>
+              <span id="importErrorMessage">0 programas con errores</span>
+              <ul id="importErrorsList" class="mt-2">
+                <!-- Se llenará con JavaScript -->
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Perfil -->
+      <div class="page-content d-none" id="profile-page">
+        <h1 class="mb-4">Perfil de Administrador</h1>
+        
+        <div class="row">
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header">
+                <i class="fas fa-user-cog me-1"></i>
+                Información Personal
+              </div>
+              <div class="card-body">
+                <form id="profileForm">
+                  <div class="mb-3">
+                    <label for="profileName" class="form-label">Nombre</label>
+                    <input type="text" class="form-control" id="profileName" name="name" value="Administrador">
+                  </div>
+                  <div class="mb-3">
+                    <label for="profileEmail" class="form-label">Correo Electrónico</label>
+                    <input type="email" class="form-control" id="profileEmail" name="email" value="admin@piratatecnologico.com" readonly>
+                  </div>
+                  <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                </form>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header">
+                <i class="fas fa-lock me-1"></i>
+                Cambiar Contraseña
+              </div>
+              <div class="card-body">
+                <form id="passwordForm">
+                  <div class="mb-3">
+                    <label for="currentPassword" class="form-label">Contraseña Actual</label>
+                    <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="newPassword" class="form-label">Nueva Contraseña</label>
+                    <input type="password" class="form-control" id="newPassword" name="newPassword" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="confirmPassword" class="form-label">Confirmar Nueva Contraseña</label>
+                    <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+                  </div>
+                  <button type="submit" class="btn btn-primary">Cambiar Contraseña</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Spinner para carga -->
+  <div id="loadingSpinner" class="spinner-overlay d-none">
+    <div class="spinner-container text-center">
+      <div class="spinner-border text-primary mb-3" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+      <p id="loadingMessage">Procesando, por favor espere...</p>
+    </div>
+  </div>
+  
+  <!-- Modal para editar programa -->
+  <div class="modal fade" id="editProgramModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Editar Programa</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Aquí se cargará el formulario de edición -->
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Modal de confirmación -->
+  <div class="modal fade" id="confirmationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Confirmar Acción</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p id="confirmationMessage"></p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-danger" id="confirmActionBtn">Confirmar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <script>
+    // Código JavaScript para manejar la funcionalidad del panel
+    // Este script se incluiría normalmente en un archivo separado
+    
+    // Variables globales
+    const API_URL = 'http://localhost:8080/api/admin';
+    let authToken = localStorage.getItem('adminToken');
+    
+    // Funciones principales
+    document.addEventListener('DOMContentLoaded', () => {
+      // Comprobar autenticación
+      checkAuth();
+      
+      // Event listeners
+      setupEventListeners();
+      
+      // Cargar datos iniciales si está autenticado
+      if (authToken) {
+        loadDashboardData();
+      }
+    });
+    
+    // Navegar entre páginas
+    function showPage(pageId) {
+      document.querySelectorAll('.page-content').forEach(page => {
+        page.classList.add('d-none');
+      });
+      
+      document.querySelectorAll('.sidebar-link').forEach(link => {
+        link.classList.remove('active');
+      });
+      
+      const page = document.getElementById(`${pageId}-page`);
+      if (page) {
+        page.classList.remove('d-none');
+      }
+      
+      const link = document.querySelector(`.sidebar-link[data-page="${pageId}"]`);
+      if (link) {
+        link.classList.add('active');
+      }
+      
+      // Cargar datos específicos de la página
+      switch (pageId) {
+        case 'dashboard':
+          loadDashboardData();
+          break;
+        case 'programs':
+          loadPrograms();
+          break;
+        case 'import':
+          // Resetear el formulario de importación
+          document.getElementById('importCsvForm').reset();
+          document.getElementById('importResults').classList.add('d-none');
+          break;
+      }
+    }
+    
+    // Configurar event listeners
+    function setupEventListeners() {
+      // Enlaces de navegación
+      document.querySelectorAll('.sidebar-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          const pageId = link.dataset.page;
+          if (pageId) {
+            showPage(pageId);
+          }
+        });
+      });
+      
+      // Toggle sidebar en móvil
+      document.getElementById('sidebarToggle')?.addEventListener('click', () => {
+        document.querySelector('.sidebar').classList.toggle('sidebar-visible');
+        document.querySelector('.content').classList.toggle('content-full');
+      });
+      
+      // Cerrar sesión
+      document.getElementById('logoutBtn')?.addEventListener('click', logout);
+      document.getElementById('logoutLink')?.addEventListener('click', logout);
+      
+      // Formulario de login
+      document.getElementById('loginForm')?.addEventListener('submit', handleLogin);
+      
+      // Formulario de añadir programa
+      document.getElementById('addProgramForm')?.addEventListener('submit', handleAddProgram);
+      
+      // Formulario de importación CSV
+      document.getElementById('importCsvForm')?.addEventListener('submit', handleImportCSV);
+      
+      // Vista previa de imágenes
+      document.getElementById('programThumbnail')?.addEventListener('change', previewThumbnail);
+      document.getElementById('programScreenshots')?.addEventListener('change', previewScreenshots);
+      
+      // Filtros de programas
+      document.getElementById('searchInput')?.addEventListener('input', debounce(() => loadPrograms(), 500));
+      document.getElementById('categoryFilter')?.addEventListener('change', () => loadPrograms());
+      document.getElementById('platformFilter')?.addEventListener('change', () => loadPrograms());
+      document.getElementById('sortFilter')?.addEventListener('change', () => loadPrograms());
+    }
+    
+    // Verificar autenticación
+    function checkAuth() {
+      if (!authToken) {
+        // Redirigir a la página de login
+        window.location.href = '/admin/login.html';
+        return;
+      }
+      
+      // Verificar token
+      fetch(`${API_URL}/verify-token`, {
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+        }
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Token inválido');
+        }
+        return response.json();
+      })
+      .then(() => {
+        // Token válido, continuar
+      })
+      .catch(error => {
+        console.error('Error de autenticación:', error);
+        logout();
+      });
+    }
+    
+    // Iniciar sesión
+    function handleLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+      
+      showLoading('Iniciando sesión...');
+      
+      fetch(`${API_URL}/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password })
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Credenciales incorrectas');
+        }
+        return response.json();
+      })
+      .then(data => {
+        localStorage.setItem('adminToken', data.token);
+        localStorage.setItem('adminUser', JSON.stringify(data.user));
+        authToken = data.token;
+        window.location.href = '/admin';
+      })
+      .catch(error => {
+        hideLoading();
+        alert(`Error: ${error.message}`);
+      });
+    }
+    
+    // Cerrar sesión
+    function logout() {
+      localStorage.removeItem('adminToken');
+      localStorage.removeItem('adminUser');
+      window.location.href = '/admin/login.html';
+    }
+    
+    // Cargar datos del dashboard
+    function loadDashboardData() {
+      showLoading('Cargando datos del dashboard...');
+      
+      fetch(`${API_URL}/stats/dashboard`, {
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+        }
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('No se pudieron cargar las estadísticas');
+        }
+        return response.json();
+      })
+      .then(data => {
+        updateDashboardStats(data);
+        hideLoading();
+      })
+      .catch(error => {
+        hideLoading();
+        console.error('Error al cargar el dashboard:', error);
+      });
+    }
+    
+    // Actualizar estadísticas del dashboard
+    function updateDashboardStats(data) {
+      // Estadísticas generales
+      document.getElementById('totalPrograms').textContent = data.totalPrograms.toLocaleString();
+      document.getElementById('totalDownloads').textContent = data.totalDownloads.toLocaleString();
+      
+      // Categorías
+      const categories = data.categoryDistribution || [];
+      document.getElementById('categoriesCount').textContent = categories.length;
+      if (categories.length > 0) {
+        document.getElementById('topCategory').textContent = categories[0]._id;
+        
+        // Gráfico de categorías
+        renderCategoryChart(categories);
+      }
+      
+      // Plataformas
+      const platforms = data.platformDistribution || [];
+      document.getElementById('platformsCount').textContent = platforms.length;
+      if (platforms.length > 0) {
+        document.getElementById('topPlatform').textContent = platforms[0]._id;
+        
+        // Gráfico de plataformas
+        renderPlatformChart(platforms);
+      }
+      
+      // Programas más descargados
+      const topDownloadsTable = document.getElementById('topDownloadsTable').querySelector('tbody');
+      topDownloadsTable.innerHTML = '';
+      (data.topDownloaded || []).forEach(program => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>
+            <div class="d-flex align-items-center">
+              <img src="${program.thumbnail || '/img/default-thumbnail.jpg'}" alt="${program.name}" class="me-2" width="30" height="30" style="object-fit: cover;">
+              <span>${program.name}</span>
+            </div>
+          </td>
+          <td>${program.downloads.toLocaleString()}</td>
+        `;
+        topDownloadsTable.appendChild(row);
+      });
+      
+      // Programas añadidos recientemente
+      const recentlyAddedTable = document.getElementById('recentlyAddedTable').querySelector('tbody');
+      recentlyAddedTable.innerHTML = '';
+      (data.recentlyAdded || []).forEach(program => {
+        const row = document.createElement('tr');
+        const date = new Date(program.createdAt).toLocaleDateString();
+        row.innerHTML = `
+          <td>
+            <div class="d-flex align-items-center">
+              <img src="${program.thumbnail || '/img/default-thumbnail.jpg'}" alt="${program.name}" class="me-2" width="30" height="30" style="object-fit: cover;">
+              <span>${program.name}</span>
+            </div>
+          </td>
+          <td>${date}</td>
+        `;
+        recentlyAddedTable.appendChild(row);
+      });
+    }
+    
+    // Renderizar gráfico de categorías
+    function renderCategoryChart(categories) {
+      const ctx = document.getElementById('categoryChart').getContext('2d');
+      
+      // Destruir gráfico existente si hay uno
+      if (window.categoryChart) {
+        window.categoryChart.destroy();
+      }
+      
+      // Limitar a las 10 categorías principales
+      const topCategories = categories.slice(0, 10);
+      
+      window.categoryChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: topCategories.map(c => c._id),
+          datasets: [{
+            label: 'Programas por Categoría',
+            data: topCategories.map(c => c.count),
+            backgroundColor: [
+              '#0d6efd', '#6f42c1', '#d63384', '#fd7e14', '#20c997',
+              '#0dcaf0', '#ffc107', '#dc3545', '#198754', '#6c757d'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'Cantidad de programas'
+              }
+            }
+          }
+        }
+      });
+    }
+    
+    // Renderizar gráfico de plataformas
+    function renderPlatformChart(platforms) {
+      const ctx = document.getElementById('platformChart').getContext('2d');
+      
+      // Destruir gráfico existente si hay uno
+      if (window.platformChart) {
+        window.platformChart.destroy();
+      }
+      
+      window.platformChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: platforms.map(p => p._id),
+          datasets: [{
+            data: platforms.map(p => p.count),
+            backgroundColor: [
+              '#0d6efd', '#6f42c1', '#d63384', '#fd7e14', '#20c997'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false
+        }
+      });
+    }
+    
+    // Cargar programas
+    function loadPrograms(page = 1) {
+      const search = document.getElementById('searchInput').value;
+      const category = document.getElementById('categoryFilter').value;
+      const platform = document.getElementById('platformFilter').value;
+      const sort = document.getElementById('sortFilter').value;
+      
+      showLoading('Cargando programas...');
+      
+      fetch(`${API_URL}/programs?page=${page}&limit=10&search=${search}&category=${category}&platform=${platform}&sort=${sort}`, {
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+        }
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('No se pudieron cargar los programas');
+        }
+        return response.json();
+      })
+      .then(data => {
+        renderProgramsTable(data.programs);
+        renderPagination(data.currentPage, data.totalPages);
+        hideLoading();
+      })
+      .catch(error => {
+        hideLoading();
+        console.error('Error al cargar programas:', error);
+      });
+    }
+    
+    // Renderizar tabla de programas
+    function renderProgramsTable(programs) {
+      const tbody = document.getElementById('programsTable').querySelector('tbody');
+      tbody.innerHTML = '';
+      
+      if (programs.length === 0) {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td colspan="7" class="text-center py-4">
+            <i class="fas fa-search me-2"></i>
+            No se encontraron programas con los filtros actuales
+          </td>
+        `;
+        tbody.appendChild(row);
+        return;
+      }
+      
+      programs.forEach(program => {
+        const platforms = program.platform ? program.platform.join(', ') : '';
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>
+            <img src="${program.thumbnail || '/img/default-thumbnail.jpg'}" alt="${program.name}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;">
+          </td>
+          <td>${program.name}</td>
+          <td>${program.category}</td>
+          <td>${program.version || ''}</td>
+          <td>${platforms}</td>
+          <td>${program.downloads ? program.downloads.toLocaleString() : '0'}</td>
+          <td>
+            <div class="d-flex">
+              <button class="btn btn-sm btn-primary me-1" onclick="editProgram('${program._id}')">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn btn-sm btn-danger" onclick="confirmDelete('${program._id}', '${program.name}')">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+    
+    // Renderizar paginación
+    function renderPagination(currentPage, totalPages) {
+      const pagination = document.getElementById('programsPagination');
+      pagination.innerHTML = '';
+      
+      if (totalPages <= 1) {
+        return;
+      }
+      
+      // Botón anterior
+      const prevBtn = document.createElement('li');
+      prevBtn.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+      prevBtn.innerHTML = `
+        <a class="page-link" href="#" aria-label="Previous" ${currentPage > 1 ? `onclick="loadPrograms(${currentPage - 1}); return false;"` : ''}>
+          <span aria-hidden="true">&laquo;</span>
+        </a>
+      `;
+      pagination.appendChild(prevBtn);
+      
+      // Páginas
+      const maxPages = 5;
+      let startPage = Math.max(1, currentPage - Math.floor(maxPages / 2));
+      let endPage = Math.min(totalPages, startPage + maxPages - 1);
+      
+      if (endPage - startPage + 1 < maxPages) {
+        startPage = Math.max(1, endPage - maxPages + 1);
+      }
+      
+      for (let i = startPage; i <= endPage; i++) {
+        const pageBtn = document.createElement('li');
+        pageBtn.className = `page-item ${i === currentPage ? 'active' : ''}`;
+        pageBtn.innerHTML = `
+          <a class="page-link" href="#" onclick="loadPrograms(${i}); return false;">${i}</a>
+        `;
+        pagination.appendChild(pageBtn);
+      }
+      
+      // Botón siguiente
+      const nextBtn = document.createElement('li');
+      nextBtn.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+      nextBtn.innerHTML = `
+        <a class="page-link" href="#" aria-label="Next" ${currentPage < totalPages ? `onclick="loadPrograms(${currentPage + 1}); return false;"` : ''}>
+          <span aria-hidden="true">&raquo;</span>
+        </a>
+      `;
+      pagination.appendChild(nextBtn);
+    }
+    
+    // Añadir programa
+    function handleAddProgram(e) {
+      e.preventDefault();
+      
+      // Validar formulario
+      const form = document.getElementById('addProgramForm');
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+      
+      // Recopilar datos del formulario
+      const formData = new FormData(form);
+      
+      // Manejar checkboxes de plataforma
+      const platforms = [];
+      document.querySelectorAll('input[name="platform"]:checked').forEach(checkbox => {
+        platforms.push(checkbox.value);
+      });
+      
+      // Eliminar plataformas individuales y agregar el array
+      formData.delete('platform');
+      platforms.forEach(platform => {
+        formData.append('platform', platform);
+      });
+      
+      showLoading('Guardando programa...');
+      
+      fetch(`${API_URL}/programs`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+        },
+        body: formData
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('No se pudo guardar el programa');
+        }
+        return response.json();
+      })
+      .then(data => {
+        hideLoading();
+        alert('Programa guardado correctamente');
+        form.reset();
+        showPage('programs');
+      })
+      .catch(error => {
+        hideLoading();
+        alert(`Error: ${error.message}`);
+      });
+    }
+    
+    // Vista previa de la imagen en miniatura
+    function previewThumbnail(e) {
+      const file = e.target.files[0];
+      const preview = document.getElementById('thumbnailPreview');
+      
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          preview.src = e.target.result;
+          preview.classList.remove('d-none');
+        };
+        reader.readAsDataURL(file);
+      } else {
+        preview.classList.add('d-none');
+      }
+    }
+    
+    // Vista previa de capturas de pantalla
+    function previewScreenshots(e) {
+      const files = e.target.files;
+      const container = document.getElementById('screenshotsPreview');
+      container.innerHTML = '';
+      
+      if (files.length > 0) {
+        Array.from(files).forEach((file, index) => {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            const preview = document.createElement('div');
+            preview.className = 'screenshot-preview';
+            preview.innerHTML = `<img src="${e.target.result}" alt="Screenshot ${index + 1}">`;
+            container.appendChild(preview);
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+    }
+    
+    // Importar desde CSV
+    function handleImportCSV(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(document.getElementById('importCsvForm'));
+      
+      showLoading('Importando programas...');
+      
+      fetch(`${API_URL}/import/csv`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+        },
+        body: formData
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Error al importar CSV');
+        }
+        return response.json();
+      })
+      .then(data => {
+        hideLoading();
+        document.getElementById('importResults').classList.remove('d-none');
+        document.getElementById('importSuccessMessage').textContent = `${data.imported} de ${data.total} programas importados correctamente`;
+        
+        // Mostrar errores si los hay
+        if (data.errors && data.errors.length > 0) {
+          document.getElementById('importErrorsContainer').classList.remove('d-none');
+          document.getElementById('importErrorMessage').textContent = `${data.errors.length} programas con errores`;
+          
+          const errorsList = document.getElementById('importErrorsList');
+          errorsList.innerHTML = '';
+          
+          data.errors.forEach(error => {
+            const li = document.createElement('li');
+            li.textContent = `Error en "${error.row.name}": ${error.error}`;
+            errorsList.appendChild(li);
+          });
+        } else {
+          document.getElementById('importErrorsContainer').classList.add('d-none');
+        }
+      })
+      .catch(error => {
+        hideLoading();
+        alert(`Error: ${error.message}`);
+      });
+    }
+    
+    // Editar programa
+    function editProgram(id) {
+      // Esta función se implementaría para abrir el modal de edición y cargar los datos del programa
+      alert('Función de edición no implementada');
+    }
+    
+    // Confirmar eliminación
+    function confirmDelete(id, name) {
+      const modal = document.getElementById('confirmationModal');
+      const bsModal = new bootstrap.Modal(modal);
+      
+      document.getElementById('confirmationMessage').textContent = `¿Estás seguro que deseas eliminar el programa "${name}"?`;
+      
+      document.getElementById('confirmActionBtn').onclick = () => {
+        deleteProgram(id);
+        bsModal.hide();
+      };
+      
+      bsModal.show();
+    }
+    
+    // Eliminar programa
+    function deleteProgram(id) {
+      showLoading('Eliminando programa...');
+      
+      fetch(`${API_URL}/programs/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+        }
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('No se pudo eliminar el programa');
+        }
+        return response.json();
+      })
+      .then(data => {
+        hideLoading();
+        // Recargar la lista de programas
+        loadPrograms();
+      })
+      .catch(error => {
+        hideLoading();
+        alert(`Error: ${error.message}`);
+      });
+    }
+    
+    // Mostrar spinner de carga
+    function showLoading(message) {
+      const spinner = document.getElementById('loadingSpinner');
+      document.getElementById('loadingMessage').textContent = message || 'Cargando...';
+      spinner.classList.remove('d-none');
+    }
+    
+    // Ocultar spinner de carga
+    function hideLoading() {
+      const spinner = document.getElementById('loadingSpinner');
+      spinner.classList.add('d-none');
+    }
+    
+    // Función debounce para evitar múltiples llamadas
+    function debounce(func, wait) {
+      let timeout;
+      return function() {
+        const context = this;
+        const args = arguments;
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(context, args), wait);
+      };
+    }
+  </script>
+</body>
+</html>

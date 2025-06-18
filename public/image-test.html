@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verificador de Imágenes - Pirata Tecnológico</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f8f9fa;
+    }
+    h1 {
+      color: #333;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .container {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .img-test {
+      border: 1px solid #e0e0e0;
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 5px;
+      background: #fff;
+    }
+    .flex {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .status {
+      font-weight: bold;
+      margin: 10px 0;
+      padding: 5px;
+      text-align: center;
+      border-radius: 4px;
+    }
+    .success {
+      background: #d4edda;
+      color: #155724;
+    }
+    .error {
+      background: #f8d7da;
+      color: #721c24;
+    }
+    textarea {
+      width: 100%;
+      height: 80px;
+      margin: 10px 0;
+      padding: 5px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    button:hover {
+      background-color: #0069d9;
+    }
+    .test-btn {
+      margin-bottom: 10px;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+    }
+    .thumb-container {
+      width: 200px;
+      height: 150px;
+      overflow: hidden;
+      border: 1px solid #ddd;
+      margin: 0 auto;
+    }
+    .thumb-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  </style>
+</head>
+<body>
+  <h1>Verificador de Imágenes - Pirata Tecnológico</h1>
+  
+  <div class="container">
+    <h2>1. Prueba de acceso a imágenes</h2>
+    <p>Esta prueba verifica que el servidor está sirviendo correctamente las imágenes.</p>
+    
+    <button class="test-btn" onclick="testImageAccess()">Ejecutar prueba de acceso a imágenes</button>
+    
+    <div class="flex">
+      <div class="img-test">
+        <h3>Thumbnail de ejemplo</h3>
+        <div class="thumb-container">
+          <img id="test-thumbnail" src="" alt="Thumbnail de prueba">
+        </div>
+        <p class="status" id="thumbnail-status">Estado: Pendiente</p>
+      </div>
+      
+      <div class="img-test">
+        <h3>Screenshot de ejemplo</h3>
+        <div class="thumb-container">
+          <img id="test-screenshot" src="" alt="Screenshot de prueba">
+        </div>
+        <p class="status" id="screenshot-status">Estado: Pendiente</p>
+      </div>
+      
+      <div class="img-test">
+        <h3>Imagen placeholder</h3>
+        <div class="thumb-container">
+          <img id="test-placeholder" src="/uploads/placeholder.jpg" alt="Imagen placeholder">
+        </div>
+        <p class="status" id="placeholder-status">Estado: Pendiente</p>
+      </div>
+    </div>
+    
+    <div class="img-test">
+      <h3>Resultado de la prueba:</h3>
+      <p class="status" id="test-result">No se ha ejecutado la prueba aún</p>
+      <textarea id="test-details" readonly></textarea>
+    </div>
+  </div>
+  
+  <div class="container">
+    <h2>2. Prueba de URL de imagen personalizada</h2>
+    <p>Ingresa una URL de imagen para probar:</p>
+    <textarea id="custom-url" placeholder="Ejemplo: /uploads/thumbnails/thumbnail-123.jpg"></textarea>
+    <button onclick="testCustomUrl()">Probar URL</button>
+    
+    <div class="img-test">
+      <h3>Imagen personalizada:</h3>
+      <div class="thumb-container">
+        <img id="custom-image" src="" alt="Imagen personalizada">
+      </div>
+      <p class="status" id="custom-status">Estado: Pendiente</p>
+    </div>
+  </div>
+  
+  <div class="container">
+    <h2>3. Datos de diagnóstico</h2>
+    <button onclick="generateDiagnostic()">Generar diagnóstico</button>
+    <textarea id="diagnostic-output" readonly style="height: 200px;"></textarea>
+  </div>
+  
+  <script>
+    // Variables para almacenar las URLs de imágenes de ejemplo
+    let thumbnailExample = '';
+    let screenshotExample = '';
+    
+    // Al cargar la página, intentamos obtener algunas imágenes de ejemplo
+    window.addEventListener('DOMContentLoaded', async () => {
+      try {
+        // Obtener un programa al azar para usar sus imágenes
+        const response = await fetch('/api/programs?limit=1');
+        const data = await response.json();
+        
+        if (data.programs && data.programs.length > 0) {
+          const program = data.programs[0];
+          
+          if (program.thumbnail) {
+            thumbnailExample = program.thumbnail;
+            document.getElementById('test-thumbnail').src = program.thumbnail;
+          }
+          
+          if (program.screenshots && program.screenshots.length > 0) {
+            screenshotExample = program.screenshots[0];
+            document.getElementById('test-screenshot').src = program.screenshots[0];
+          }
+          
+          document.getElementById('test-details').value = 'Imágenes de ejemplo obtenidas del programa: ' + program.name;
+        } else {
+          document.getElementById('test-details').value = 'No se encontraron programas para obtener imágenes de ejemplo';
+        }
+      } catch (error) {
+        document.getElementById('test-details').value = 'Error al obtener programas: ' + error.message;
+      }
+    });
+    
+    // Función para probar el acceso a las imágenes
+    async function testImageAccess() {
+      // Resetear estados
+      document.getElementById('thumbnail-status').textContent = 'Estado: Verificando...';
+      document.getElementById('thumbnail-status').className = 'status';
+      document.getElementById('screenshot-status').textContent = 'Estado: Verificando...';
+      document.getElementById('screenshot-status').className = 'status';
+      document.getElementById('placeholder-status').textContent = 'Estado: Verificando...';
+      document.getElementById('placeholder-status').className = 'status';
+      document.getElementById('test-result').textContent = 'Ejecutando pruebas...';
+      document.getElementById('test-result').className = 'status';
+      document.getElementById('test-details').value = '';
+      
+      let details = '';
+      let allSuccess = true;
+      
+      // Prueba 1: Thumbnail
+      try {
+        const thumbnailResult = await testImage(thumbnailExample);
+        document.getElementById('thumbnail-status').textContent = thumbnailResult ? 'Estado: ✅ OK' : 'Estado: ❌ Error';
+        document.getElementById('thumbnail-status').className = `status ${thumbnailResult ? 'success' : 'error'}`;
+        details += `Thumbnail: ${thumbnailResult ? 'Accesible' : 'No accesible'}\nURL: ${thumbnailExample}\n\n`;
+        if (!thumbnailResult) allSuccess = false;
+      } catch (error) {
+        document.getElementById('thumbnail-status').textContent = 'Estado: ❌ Error';
+        document.getElementById('thumbnail-status').className = 'status error';
+        details += `Thumbnail: Error - ${error.message}\nURL: ${thumbnailExample}\n\n`;
+        allSuccess = false;
+      }
+      
+      // Prueba 2: Screenshot
+      try {
+        const screenshotResult = await testImage(screenshotExample);
+        document.getElementById('screenshot-status').textContent = screenshotResult ? 'Estado: ✅ OK' : 'Estado: ❌ Error';
+        document.getElementById('screenshot-status').className = `status ${screenshotResult ? 'success' : 'error'}`;
+        details += `Screenshot: ${screenshotResult ? 'Accesible' : 'No accesible'}\nURL: ${screenshotExample}\n\n`;
+        if (!screenshotResult) allSuccess = false;
+      } catch (error) {
+        document.getElementById('screenshot-status').textContent = 'Estado: ❌ Error';
+        document.getElementById('screenshot-status').className = 'status error';
+        details += `Screenshot: Error - ${error.message}\nURL: ${screenshotExample}\n\n`;
+        allSuccess = false;
+      }
+      
+      // Prueba 3: Placeholder
+      try {
+        const placeholderResult = await testImage('/uploads/placeholder.jpg');
+        document.getElementById('placeholder-status').textContent = placeholderResult ? 'Estado: ✅ OK' : 'Estado: ❌ Error';
+        document.getElementById('placeholder-status').className = `status ${placeholderResult ? 'success' : 'error'}`;
+        details += `Placeholder: ${placeholderResult ? 'Accesible' : 'No accesible'}\nURL: /uploads/placeholder.jpg\n\n`;
+        if (!placeholderResult) allSuccess = false;
+      } catch (error) {
+        document.getElementById('placeholder-status').textContent = 'Estado: ❌ Error';
+        document.getElementById('placeholder-status').className = 'status error';
+        details += `Placeholder: Error - ${error.message}\nURL: /uploads/placeholder.jpg\n\n`;
+        allSuccess = false;
+      }
+      
+      // Resultado final
+      document.getElementById('test-result').textContent = allSuccess ? '✅ Todas las pruebas exitosas' : '❌ Algunas pruebas fallaron';
+      document.getElementById('test-result').className = `status ${allSuccess ? 'success' : 'error'}`;
+      document.getElementById('test-details').value = details;
+    }
+    
+    // Función para probar una imagen específica
+    function testImage(url) {
+      return new Promise((resolve, reject) => {
+        if (!url) {
+          reject(new Error('URL vacía'));
+          return;
+        }
+        
+        const img = new Image();
+        
+        img.onload = () => resolve(true);
+        img.onerror = () => resolve(false);
+        
+        // Agregar timestamp para evitar cache
+        const timestamp = Date.now();
+        img.src = url.includes('?') ? `${url}&_t=${timestamp}` : `${url}?_t=${timestamp}`;
+        
+        // Timeout después de 5 segundos
+        setTimeout(() => {
+          resolve(false);
+        }, 5000);
+      });
+    }
+    
+    // Función para probar una URL personalizada
+    function testCustomUrl() {
+      const url = document.getElementById('custom-url').value.trim();
+      if (!url) {
+        document.getElementById('custom-status').textContent = 'Estado: ❌ URL vacía';
+        document.getElementById('custom-status').className = 'status error';
+        return;
+      }
+      
+      document.getElementById('custom-status').textContent = 'Estado: Verificando...';
+      document.getElementById('custom-status').className = 'status';
+      
+      // Agregar timestamp para evitar cache
+      const timestamp = Date.now();
+      const fullUrl = url.includes('?') ? `${url}&_t=${timestamp}` : `${url}?_t=${timestamp}`;
+      
+      // Establecer la imagen
+      document.getElementById('custom-image').src = fullUrl;
+      
+      // Verificar si carga correctamente
+      document.getElementById('custom-image').onload = function() {
+        document.getElementById('custom-status').textContent = 'Estado: ✅ Imagen cargada correctamente';
+        document.getElementById('custom-status').className = 'status success';
+      };
+      document.getElementById('custom-image').onerror = function() {
+        document.getElementById('custom-status').textContent = 'Estado: ❌ Error al cargar la imagen';
+        document.getElementById('custom-status').className = 'status error';
+      };
+    }
+    
+    // Función para generar diagnóstico
+    async function generateDiagnostic() {
+      const output = document.getElementById('diagnostic-output');
+      output.value = 'Generando diagnóstico...\n';
+      
+      try {
+        // Información del navegador
+        output.value += '--- INFORMACIÓN DEL NAVEGADOR ---\n';
+        output.value += `User Agent: ${navigator.userAgent}\n`;
+        output.value += `Cookies habilitadas: ${navigator.cookieEnabled}\n\n`;
+        
+        // Prueba de conexión al servidor
+        output.value += '--- PRUEBA DE CONEXIÓN AL SERVIDOR ---\n';
+        try {
+          const serverResponse = await fetch('/');
+          const serverData = await serverResponse.json();
+          output.value += `Servidor accesible: Sí\n`;
+          output.value += `Versión del servidor: ${serverData.env || 'No especificada'}\n\n`;
+        } catch (error) {
+          output.value += `Servidor accesible: No (${error.message})\n\n`;
+        }
+        
+        // Prueba de API de programas
+        output.value += '--- PRUEBA DE API DE PROGRAMAS ---\n';
+        try {
+          const programsResponse = await fetch('/api/programs?limit=1');
+          if (programsResponse.ok) {
+            const programsData = await programsResponse.json();
+            output.value += `API de programas: Funcionando\n`;
+            output.value += `Programas encontrados: ${programsData.totalPrograms || 0}\n\n`;
+          } else {
+            output.value += `API de programas: Error (${programsResponse.status})\n\n`;
+          }
+        } catch (error) {
+          output.value += `API de programas: Error (${error.message})\n\n`;
+        }
+        
+        // Verificar acceso a imágenes
+        output.value += '--- VERIFICACIÓN DE ACCESO A IMÁGENES ---\n';
+        
+        // Thumbnail
+        if (thumbnailExample) {
+          const thumbnailAccess = await testImage(thumbnailExample);
+          output.value += `Thumbnail accesible: ${thumbnailAccess ? 'Sí' : 'No'}\n`;
+          output.value += `URL: ${thumbnailExample}\n\n`;
+        } else {
+          output.value += `No hay thumbnail de ejemplo disponible\n\n`;
+        }
+        
+        // Screenshot
+        if (screenshotExample) {
+          const screenshotAccess = await testImage(screenshotExample);
+          output.value += `Screenshot accesible: ${screenshotAccess ? 'Sí' : 'No'}\n`;
+          output.value += `URL: ${screenshotExample}\n\n`;
+        } else {
+          output.value += `No hay screenshot de ejemplo disponible\n\n`;
+        }
+        
+        // Placeholder
+        const placeholderAccess = await testImage('/uploads/placeholder.jpg');
+        output.value += `Placeholder accesible: ${placeholderAccess ? 'Sí' : 'No'}\n`;
+        output.value += `URL: /uploads/placeholder.jpg\n\n`;
+        
+        // Conclusión
+        output.value += '--- CONCLUSIÓN ---\n';
+        if (!thumbnailExample && !screenshotExample) {
+          output.value += 'No se encontraron imágenes de ejemplo para probar. Verifica que haya programas con imágenes en la base de datos.\n';
+        } else if ((thumbnailExample && !await testImage(thumbnailExample)) || 
+                  (screenshotExample && !await testImage(screenshotExample))) {
+          output.value += 'Hay problemas con el acceso a imágenes. Posibles causas:\n';
+          output.value += '1. Los archivos de imagen no existen en el servidor\n';
+          output.value += '2. Hay un problema de permisos al acceder a los archivos\n';
+          output.value += '3. El servidor no está configurado para servir archivos estáticos correctamente\n';
+          output.value += '4. Las URLs de las imágenes están mal formadas o son incorrectas\n\n';
+          output.value += 'Recomendación: Ejecuta el script fix-image-display.bat para intentar resolver el problema automáticamente.\n';
+        } else {
+          output.value += 'No se detectaron problemas con las imágenes. Si sigues viendo problemas, verifica:\n';
+          output.value += '1. La caché del navegador (usa Ctrl+F5 para recargar sin caché)\n';
+          output.value += '2. Que las imágenes en la base de datos apunten a archivos existentes\n';
+          output.value += '3. Que el tipo MIME de las imágenes sea correcto\n';
+        }
+      } catch (error) {
+        output.value += `\nERROR durante el diagnóstico: ${error.message}\n`;
+      }
+    }
+  </script>
+</body>
+</html>

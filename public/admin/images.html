@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestionar Imágenes - Pirata Tecnológico</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #0d6efd;
+      --secondary: #6c757d;
+      --success: #198754;
+      --warning: #ffc107;
+      --danger: #dc3545;
+      --dark: #212529;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f8f9fa;
+    }
+    
+    .sidebar {
+      min-height: 100vh;
+      background: #212529;
+      color: #fff;
+      position: fixed;
+      width: 250px;
+      z-index: 1000;
+      padding-top: 10px;
+      overflow-y: auto;
+    }
+    
+    .main-content {
+      margin-left: 250px;
+      padding: 20px;
+    }
+    
+    .brand {
+      padding: 15px;
+      font-size: 22px;
+      font-weight: bold;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .nav-link {
+      color: rgba(255, 255, 255, 0.7);
+      padding: 12px 20px;
+      border-radius: 5px;
+      margin: 5px 15px;
+      display: flex;
+      align-items: center;
+    }
+    
+    .nav-link i {
+      margin-right: 10px;
+      width: 20px;
+      text-align: center;
+    }
+    
+    .nav-link:hover,
+    .nav-link.active {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+    
+    .card {
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      margin-bottom: 25px;
+    }
+    
+    .card-header {
+      border-bottom: 1px solid #f2f2f2;
+      background: #fff;
+      padding: 15px 20px;
+      font-weight: 600;
+    }
+    
+    .card .table {
+      margin-bottom: 0;
+    }
+    
+    .top-bar {
+      background: #fff;
+      padding: 15px 20px;
+      border-bottom: 1px solid #dee2e6;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    
+    .breadcrumb {
+      margin-bottom: 0;
+    }
+    
+    .thumbnail-preview {
+      width: 150px;
+      height: auto;
+      border-radius: 5px;
+      border: 1px solid #ddd;
+      object-fit: cover;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .screenshot-preview {
+      width: 100%;
+      height: 150px;
+      border-radius: 5px;
+      border: 1px solid #ddd;
+      object-fit: cover;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
+      cursor: pointer;
+    }
+    
+    .screenshot-preview:hover {
+      transform: scale(1.03);
+    }
+    
+    .progress {
+      height: 8px;
+      margin-top: 8px;
+    }
+    
+    .image-action {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(0,0,0,0.5);
+      color: white;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    
+    .image-container:hover .image-action {
+      opacity: 1;
+    }
+    
+    .modal-image {
+      max-width: 100%;
+      max-height: 80vh;
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="brand d-flex align-items-center">
+      <i class="fas fa-skull-crossbones me-2"></i>
+      <span>Pirata Tech</span>
+    </div>
+    
+    <div class="mt-4">
+      <p class="text-light px-4 mb-2 opacity-75 small">MENÚ</p>
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <a class="nav-link" href="dashboard.html">
+            <i class="fas fa-tachometer-alt"></i>
+            <span>Dashboard</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="programs.html">
+            <i class="fas fa-laptop-code"></i>
+            <span>Programas</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="upload.html">
+            <i class="fas fa-upload"></i>
+            <span>Subir Programa</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="images.html">
+            <i class="fas fa-images"></i>
+            <span>Gestionar Imágenes</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="import.html">
+            <i class="fas fa-file-import"></i>
+            <span>Importar CSV</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="settings.html">
+            <i class="fas fa-cog"></i>
+            <span>Configuración</span>
+          </a>
+        </li>
+        <li class="nav-item mt-3">
+          <a class="nav-link text-danger" href="#" id="logoutBtn">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Cerrar Sesión</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content pb-5">
+    <!-- Top Bar -->
+    <div class="top-bar d-flex justify-content-between align-items-center">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+          <li class="breadcrumb-item"><a href="dashboard.html">Inicio</a></li>
+          <li class="breadcrumb-item"><a href="programs.html">Programas</a></li>
+          <li class="breadcrumb-item active">Gestionar Imágenes</li>
+        </ol>
+      </nav>
+      
+      <div class="d-flex align-items-center">
+        <span class="me-3" id="username"></span>
+        <div class="dropdown">
+          <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+            <i class="fas fa-user-circle"></i>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="profile.html"><i class="fas fa-user me-2"></i>Mi Perfil</a></li>
+            <li><a class="dropdown-item" href="settings.html"><i class="fas fa-cog me-2"></i>Configuración</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#" id="sidebarLogoutBtn"><i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Page Content -->
+    <div class="container-fluid">
+      <!-- Page Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0" id="programTitle">Gestionar Imágenes</h1>
+        <a href="programs.html" class="btn btn-outline-secondary">
+          <i class="fas fa-arrow-left me-1"></i> Volver a Programas
+        </a>
+      </div>
+
+      <div class="alert alert-info" id="loadingAlert">
+        <div class="d-flex align-items-center">
+          <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+          <div>Cargando información del programa...</div>
+        </div>
+      </div>
+      
+      <div id="programContent" style="display:none;">
+        <!-- Imagen Principal (Thumbnail) -->
+        <div class="card mb-4">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="fas fa-image me-2"></i>Imagen Principal</span>
+            <button class="btn btn-sm btn-outline-primary" id="changeThumbnailBtn">
+              <i class="fas fa-exchange-alt me-1"></i>Cambiar Imagen
+            </button>
+          </div>
+          <div class="card-body">
+            <div class="row align-items-center">
+              <div class="col-md-4 text-center">
+                <img id="thumbnailPreview" src="https://via.placeholder.com/150" alt="Imagen Principal" class="thumbnail-preview mb-3">
+              </div>
+              <div class="col-md-8">
+                <div id="thumbnailUploadForm" style="display:none;">
+                  <div class="mb-3">
+                    <label for="thumbnailUpload" class="form-label">Seleccionar nueva imagen</label>
+                    <input type="file" class="form-control" id="thumbnailUpload" accept="image/*">
+                    <div class="form-text">Formatos permitidos: JPG, PNG, GIF. Tamaño máximo: 5MB</div>
+                  </div>
+                  <div class="progress mb-3 d-none" id="thumbnailProgress">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%" id="thumbnailProgressBar"></div>
+                  </div>
+                  <div class="mb-3">
+                    <button class="btn btn-primary btn-sm" id="uploadThumbnailBtn">
+                      <i class="fas fa-upload me-1"></i>Subir Imagen
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm" id="cancelThumbnailBtn">
+                      <i class="fas fa-times me-1"></i>Cancelar
+                    </button>
+                  </div>
+                </div>
+                <div id="thumbnailInfo">
+                  <h5 class="card-title" id="programName">Nombre del Programa</h5>
+                  <p class="card-text" id="programDetails">
+                    <span class="badge bg-secondary me-2" id="programCategory">Categoría</span>
+                    <span class="text-muted" id="programVersion">Versión</span>
+                  </p>
+                  <p class="text-muted small mb-0" id="thumbnailDetails">
+                    Dimensiones: <span id="thumbnailSize">--</span> | 
+                    Actualizado: <span id="thumbnailDate">--</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Capturas de Pantalla -->
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="fas fa-desktop me-2"></i>Capturas de Pantalla</span>
+            <div>
+              <span class="badge bg-primary me-2" id="screenshotsCount">0</span>
+              <button class="btn btn-sm btn-success" id="addScreenshotsBtn">
+                <i class="fas fa-plus-circle me-1"></i>Agregar Capturas
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div id="screenshotsUploadForm" style="display:none;" class="mb-4 p-3 bg-light rounded">
+              <h5 class="mb-3">Agregar nuevas capturas de pantalla</h5>
+              <div class="mb-3">
+                <label for="screenshotsUpload" class="form-label">Seleccionar imágenes</label>
+                <input type="file" class="form-control" id="screenshotsUpload" accept="image/*" multiple>
+                <div class="form-text">Puedes seleccionar múltiples imágenes. Máximo 10 capturas.</div>
+              </div>
+              <div class="progress mb-3 d-none" id="screenshotsProgress">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%" id="screenshotsProgressBar"></div>
+              </div>
+              <div>
+                <button class="btn btn-primary" id="uploadScreenshotsBtn">
+                  <i class="fas fa-upload me-1"></i>Subir Capturas
+                </button>
+                <button class="btn btn-outline-secondary" id="cancelScreenshotsBtn">
+                  <i class="fas fa-times me-1"></i>Cancelar
+                </button>
+              </div>
+            </div>
+            
+            <div class="row g-3" id="screenshotsContainer">
+              <div class="col-12 text-center py-5 text-muted" id="noScreenshots">
+                <i class="fas fa-images fa-3x mb-3 opacity-25"></i>
+                <h5>No hay capturas de pantalla</h5>
+                <p class="mb-0">Haga clic en "Agregar Capturas" para subir imágenes.</p>
+              </div>
+              <!-- Las capturas se cargarán dinámicamente aquí -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Modal para ver imagen -->
+  <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="imageModalLabel">Vista Previa</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center">
+          <img src="" id="modalImage" class="modal-image">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Modal de confirmación -->
+  <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Confirmar Eliminación</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>¿Está seguro que desea eliminar esta imagen?</p>
+          <p class="text-danger mb-0">Esta acción no se puede deshacer.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+            <i class="fas fa-trash-alt me-1"></i>Eliminar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Comprobar autenticación
+      const token = localStorage.getItem('adminToken');
+      const user = JSON.parse(localStorage.getItem('adminUser') || '{}');
+      
+      if (!token) {
+        window.location.href = 'login.html';
+        return;
+      }
+      
+      // Establecer nombre de usuario
+      if (user.username || user.name) {
+        document.getElementById('username').textContent = `Hola, ${user.name || user.username}`;
+      }
+      
+      // Logout functionality
+      document.getElementById('logoutBtn').addEventListener('click', logout);
+      document.getElementById('sidebarLogoutBtn').addEventListener('click', logout);
+      
+      function logout(e) {
+        e.preventDefault();
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('adminUser');
+        window.location.href = 'login.html';
+      }
+
+      // Variables globales
+      let programId = null;
+      let programData = null;
+      let currentImageToDelete = null;
+
+      // Obtener el ID del programa de la URL
+      const urlParams = new URLSearchParams(window.location.search);
+      programId = urlParams.get('id');      if (!programId) {
+        // Si no hay ID de programa, redirigir al selector de programas
+        window.location.href = 'image-selector.html';
+        return;
+      } else {
+        // Cargar datos del programa
+        loadProgramData();
+      }
+
+      // Event listeners para los botones
+      document.getElementById('changeThumbnailBtn').addEventListener('click', function() {
+        document.getElementById('thumbnailInfo').style.display = 'none';
+        document.getElementById('thumbnailUploadForm').style.display = 'block';
+      });
+
+      document.getElementById('cancelThumbnailBtn').addEventListener('click', function() {
+        document.getElementById('thumbnailInfo').style.display = 'block';
+        document.getElementById('thumbnailUploadForm').style.display = 'none';
+        document.getElementById('thumbnailUpload').value = '';
+      });
+
+      document.getElementById('addScreenshotsBtn').addEventListener('click', function() {
+        document.getElementById('screenshotsUploadForm').style.display = 'block';
+        document.getElementById('screenshotsUpload').value = '';
+      });
+
+      document.getElementById('cancelScreenshotsBtn').addEventListener('click', function() {
+        document.getElementById('screenshotsUploadForm').style.display = 'none';
+        document.getElementById('screenshotsUpload').value = '';
+      });
+
+      document.getElementById('uploadThumbnailBtn').addEventListener('click', uploadThumbnail);
+      document.getElementById('uploadScreenshotsBtn').addEventListener('click', uploadScreenshots);
+
+      // Modal de imagen
+      const imageModal = document.getElementById('imageModal');
+      imageModal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        const imgSrc = button.getAttribute('data-src');
+        document.getElementById('modalImage').src = imgSrc;
+      });
+
+      // Modal de confirmación
+      const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+      document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+        if (currentImageToDelete) {
+          deleteScreenshot(currentImageToDelete);
+          deleteModal.hide();
+        }
+      });
+
+      // Cargar datos del programa
+      function loadProgramData() {
+        fetch(`/api/admin/programs/${programId}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`Error: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          programData = data.program;
+          
+          // Actualizar la interfaz con los datos del programa
+          document.getElementById('programTitle').textContent = `Imágenes: ${programData.name}`;
+          document.getElementById('programName').textContent = programData.name;
+          document.getElementById('programCategory').textContent = programData.category || 'Sin categoría';
+          document.getElementById('programVersion').textContent = `v${programData.version || '1.0'}`;
+            // Actualizar imagen principal
+          if (programData.thumbnail) {
+            // Añadir un timestamp para evitar el caché del navegador
+            const timestamp = Date.now();
+            const thumbnailUrl = programData.thumbnail.includes('?') ? 
+              `${programData.thumbnail}&_t=${timestamp}` : 
+              `${programData.thumbnail}?_t=${timestamp}`;
+            
+            document.getElementById('thumbnailPreview').src = thumbnailUrl;
+            document.getElementById('thumbnailDetails').style.display = 'block';
+            document.getElementById('thumbnailDate').textContent = new Date(programData.updatedAt).toLocaleDateString();
+          } else {
+            document.getElementById('thumbnailPreview').src = 'https://via.placeholder.com/150?text=No+Thumbnail';
+            document.getElementById('thumbnailDetails').style.display = 'none';
+          }
+          
+          // Actualizar capturas de pantalla
+          if (programData.screenshots && programData.screenshots.length > 0) {
+            document.getElementById('screenshotsCount').textContent = programData.screenshots.length;
+            document.getElementById('noScreenshots').style.display = 'none';
+            renderScreenshots();
+          } else {
+            document.getElementById('screenshotsCount').textContent = '0';
+            document.getElementById('noScreenshots').style.display = 'block';
+          }
+          
+          // Mostrar contenido del programa
+          document.getElementById('loadingAlert').style.display = 'none';
+          document.getElementById('programContent').style.display = 'block';
+        })
+        .catch(error => {
+          document.getElementById('loadingAlert').classList.remove('alert-info');
+          document.getElementById('loadingAlert').classList.add('alert-danger');
+          document.getElementById('loadingAlert').innerHTML = `
+            <i class="fas fa-exclamation-circle me-2"></i>
+            Error al cargar el programa: ${error.message}
+            <div class="mt-2">
+              <a href="programs.html" class="btn btn-sm btn-primary">Volver a programas</a>
+            </div>
+          `;
+        });
+      }      // Renderizar capturas de pantalla
+      function renderScreenshots() {
+        const container = document.getElementById('screenshotsContainer');
+        container.innerHTML = '';
+        
+        programData.screenshots.forEach((screenshot, index) => {
+          // Añadir un timestamp para evitar el caché del navegador
+          const timestamp = Date.now();
+          const screenshotUrl = screenshot.includes('?') ? 
+            `${screenshot}&_t=${timestamp}` : 
+            `${screenshot}?_t=${timestamp}`;
+          
+          const col = document.createElement('div');
+          col.className = 'col-md-4 col-lg-3';
+          col.innerHTML = `
+            <div class="card h-100 position-relative image-container">
+              <img src="${screenshotUrl}" class="card-img-top screenshot-preview" 
+                alt="Captura de pantalla ${index + 1}"
+                data-bs-toggle="modal" 
+                data-bs-target="#imageModal" 
+                data-src="${screenshotUrl}">
+              <div class="card-body p-2">
+                <p class="card-text small text-muted mb-0">Captura ${index + 1}</p>
+              </div>
+              <button class="btn btn-sm btn-danger image-action delete-screenshot-btn" 
+                data-screenshot="${screenshot}" title="Eliminar">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </div>
+          `;
+          container.appendChild(col);
+        });
+        
+        // Agregar evento a los botones de eliminar
+        document.querySelectorAll('.delete-screenshot-btn').forEach(btn => {
+          btn.addEventListener('click', function() {
+            currentImageToDelete = this.getAttribute('data-screenshot');
+            const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            modal.show();
+          });
+        });
+      }
+
+      // Subir imagen principal
+      function uploadThumbnail() {
+        const fileInput = document.getElementById('thumbnailUpload');
+        if (!fileInput.files || fileInput.files.length === 0) {
+          alert('Por favor seleccione una imagen');
+          return;
+        }
+        
+        const file = fileInput.files[0];
+        const formData = new FormData();
+        formData.append('thumbnail', file);
+        
+        // Mostrar barra de progreso
+        const progressContainer = document.getElementById('thumbnailProgress');
+        const progressBar = document.getElementById('thumbnailProgressBar');
+        progressContainer.classList.remove('d-none');
+        progressBar.style.width = '0%';
+        
+        // Deshabilitar botones durante la subida
+        document.getElementById('uploadThumbnailBtn').disabled = true;
+        document.getElementById('cancelThumbnailBtn').disabled = true;
+        
+        // Upload file
+        fetch(`/api/admin/programs/${programId}/thumbnail`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+          body: formData
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Error al subir thumbnail');
+          }
+          return response.json();
+        })
+        .then(data => {
+          // Actualizar progreso
+          progressBar.style.width = '100%';
+          
+          // Actualizar datos
+          if (data.program) {
+            programData = data.program;
+            document.getElementById('thumbnailPreview').src = programData.thumbnail;
+            document.getElementById('thumbnailDate').textContent = new Date().toLocaleDateString();
+            document.getElementById('thumbnailDetails').style.display = 'block';
+            
+            // Mensaje de éxito
+            alert('Imagen principal actualizada exitosamente');
+          }
+          
+          // Volver al modo de visualización
+          document.getElementById('thumbnailUploadForm').style.display = 'none';
+          document.getElementById('thumbnailInfo').style.display = 'block';
+          fileInput.value = '';
+          
+          // Ocultar barra de progreso después de un rato
+          setTimeout(() => {
+            progressContainer.classList.add('d-none');
+            progressBar.style.width = '0%';
+            document.getElementById('uploadThumbnailBtn').disabled = false;
+            document.getElementById('cancelThumbnailBtn').disabled = false;
+          }, 1500);
+        })
+        .catch(error => {
+          progressContainer.classList.add('d-none');
+          document.getElementById('uploadThumbnailBtn').disabled = false;
+          document.getElementById('cancelThumbnailBtn').disabled = false;
+          alert('Error al subir imagen: ' + error.message);
+        });
+      }
+
+      // Subir capturas de pantalla
+      function uploadScreenshots() {
+        const fileInput = document.getElementById('screenshotsUpload');
+        if (!fileInput.files || fileInput.files.length === 0) {
+          alert('Por favor seleccione al menos una imagen');
+          return;
+        }
+        
+        const formData = new FormData();
+        for (let i = 0; i < fileInput.files.length; i++) {
+          formData.append('screenshots', fileInput.files[i]);
+        }
+        
+        // Mostrar barra de progreso
+        const progressContainer = document.getElementById('screenshotsProgress');
+        const progressBar = document.getElementById('screenshotsProgressBar');
+        progressContainer.classList.remove('d-none');
+        progressBar.style.width = '0%';
+        
+        // Deshabilitar botones durante la subida
+        document.getElementById('uploadScreenshotsBtn').disabled = true;
+        document.getElementById('cancelScreenshotsBtn').disabled = true;
+        
+        // Upload file
+        fetch(`/api/admin/programs/${programId}/screenshots`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+          body: formData
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Error al subir capturas de pantalla');
+          }
+          return response.json();
+        })
+        .then(data => {
+          // Actualizar progreso
+          progressBar.style.width = '100%';
+          
+          // Actualizar datos
+          if (data.program) {
+            programData = data.program;
+            document.getElementById('screenshotsCount').textContent = programData.screenshots.length;
+            document.getElementById('noScreenshots').style.display = 'none';
+            renderScreenshots();
+            
+            // Mensaje de éxito
+            alert('Capturas de pantalla subidas exitosamente');
+          }
+          
+          // Volver al modo de visualización
+          document.getElementById('screenshotsUploadForm').style.display = 'none';
+          fileInput.value = '';
+          
+          // Ocultar barra de progreso después de un rato
+          setTimeout(() => {
+            progressContainer.classList.add('d-none');
+            progressBar.style.width = '0%';
+            document.getElementById('uploadScreenshotsBtn').disabled = false;
+            document.getElementById('cancelScreenshotsBtn').disabled = false;
+          }, 1500);
+        })
+        .catch(error => {
+          progressContainer.classList.add('d-none');
+          document.getElementById('uploadScreenshotsBtn').disabled = false;
+          document.getElementById('cancelScreenshotsBtn').disabled = false;
+          alert('Error al subir imágenes: ' + error.message);
+        });
+      }
+
+      // Eliminar captura de pantalla
+      function deleteScreenshot(screenshotUrl) {
+        if (!screenshotUrl) return;
+        
+        const screenshotFilename = screenshotUrl.split('/').pop();
+        
+        fetch('/api/admin/screenshots', {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            programId: programId,
+            screenshot: screenshotFilename
+          })
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Error al eliminar la captura de pantalla');
+          }
+          return response.json();
+        })
+        .then(data => {
+          // Actualizar datos del programa
+          programData = data.program;
+          document.getElementById('screenshotsCount').textContent = programData.screenshots.length;
+          
+          if (programData.screenshots.length === 0) {
+            document.getElementById('noScreenshots').style.display = 'block';
+          }
+          
+          // Volver a renderizar capturas
+          renderScreenshots();
+          
+          // Mensaje de éxito
+          alert('Captura de pantalla eliminada exitosamente');
+        })
+        .catch(error => {
+          alert('Error al eliminar captura de pantalla: ' + error.message);
+        });
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1495 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestión de Programas - Pirata Tecnológico</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.5/css/dataTables.bootstrap5.min.css">
+  <style>
+    :root {
+      --primary: #0d6efd;
+      --secondary: #6c757d;
+      --success: #198754;
+      --warning: #ffc107;
+      --danger: #dc3545;
+      --dark: #212529;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f8f9fa;
+    }
+    
+    .sidebar {
+      min-height: 100vh;
+      background: #212529;
+      color: #fff;
+      position: fixed;
+      width: 250px;
+      z-index: 1000;
+      padding-top: 10px;
+      overflow-y: auto;
+    }
+    
+    .main-content {
+      margin-left: 250px;
+      padding: 20px;
+    }
+    
+    .brand {
+      padding: 15px;
+      font-size: 22px;
+      font-weight: bold;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .nav-link {
+      color: rgba(255, 255, 255, 0.7);
+      padding: 12px 20px;
+      border-radius: 5px;
+      margin: 5px 15px;
+      display: flex;
+      align-items: center;
+    }
+    
+    .nav-link i {
+      margin-right: 10px;
+      width: 20px;
+      text-align: center;
+    }
+    
+    .nav-link:hover,
+    .nav-link.active {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+    
+    .card {
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      margin-bottom: 25px;
+    }
+    
+    .card-header {
+      border-bottom: 1px solid #f2f2f2;
+      background: #fff;
+      padding: 15px 20px;
+      font-weight: 600;
+    }
+    
+    .card .table {
+      margin-bottom: 0;
+    }
+    
+    .badge-category {
+      padding: 5px 10px;
+      border-radius: 50px;
+      font-weight: 400;
+      font-size: 12px;
+    }
+    
+    .thumbnail-preview {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 5px;
+    }
+    
+    .btn-action {
+      padding: 0.25rem 0.5rem;
+    }
+    
+    .form-check-input:checked {
+      background-color: var(--primary);
+      border-color: var(--primary);
+    }
+    
+    .dropdown-menu {
+      min-width: 200px;
+    }
+    
+    .top-bar {
+      background: #fff;
+      padding: 15px 20px;
+      border-bottom: 1px solid #dee2e6;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    
+    .breadcrumb {
+      margin-bottom: 0;
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="brand d-flex align-items-center">
+      <i class="fas fa-skull-crossbones me-2"></i>
+      <span>Pirata Tech</span>
+    </div>
+      <div class="mt-4">
+      <p class="text-light px-4 mb-2 opacity-75 small">MENÚ</p>
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <a class="nav-link" href="dashboard.html">
+            <i class="fas fa-tachometer-alt"></i>
+            <span>Dashboard</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="programs.html">
+            <i class="fas fa-laptop-code"></i>
+            <span>Programas</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="upload.html">
+            <i class="fas fa-upload"></i>
+            <span>Subir Programa</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="import.html">
+            <i class="fas fa-file-import"></i>
+            <span>Importar CSV</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="settings.html">
+            <i class="fas fa-cog"></i>
+            <span>Configuración</span>
+          </a>
+        </li>
+        <li class="nav-item mt-3">
+          <a class="nav-link text-danger" href="#" id="logoutBtn">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Cerrar Sesión</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content pb-5">
+    <!-- Top Bar -->
+    <div class="top-bar d-flex justify-content-between align-items-center">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+          <li class="breadcrumb-item"><a href="dashboard.html">Inicio</a></li>
+          <li class="breadcrumb-item active">Programas</li>
+        </ol>
+      </nav>
+      
+      <div class="d-flex align-items-center">
+        <span class="me-3" id="username"></span>
+        <div class="dropdown">
+          <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+            <i class="fas fa-user-circle"></i>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="profile.html"><i class="fas fa-user me-2"></i>Mi Perfil</a></li>
+            <li><a class="dropdown-item" href="settings.html"><i class="fas fa-cog me-2"></i>Configuración</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#" id="sidebarLogoutBtn"><i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Page Content -->
+    <div class="container-fluid">      <!-- Page Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">Gestión de Programas</h1>
+        <div>
+          <a href="upload.html" class="btn btn-success me-2">
+            <i class="fas fa-upload me-2"></i>Subir Programa
+          </a>
+          <button class="btn btn-primary" id="addProgramBtn">
+            <i class="fas fa-plus-circle me-2"></i>Crear Programa
+          </button>
+        </div>
+      </div>
+      
+      <!-- Filters -->
+      <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span><i class="fas fa-filter me-2"></i>Filtros</span>
+          <button class="btn btn-sm btn-outline-secondary" id="resetFiltersBtn">Reiniciar</button>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-3">
+              <label class="form-label">Categoría</label>
+              <select class="form-select" id="filterCategory">
+                <option value="">Todas</option>
+                <option value="Productividad">Productividad</option>
+                <option value="Diseño">Diseño</option>
+                <option value="Seguridad">Seguridad</option>
+                <option value="Multimedia">Multimedia</option>
+                <option value="Desarrollo">Desarrollo</option>
+                <option value="Juegos">Juegos</option>
+                <option value="Utilidades">Utilidades</option>
+                <option value="Internet">Internet</option>
+                <option value="Comunicación">Comunicación</option>
+                <option value="Educación">Educación</option>
+                <option value="Negocios">Negocios</option>
+                <option value="Fotografía">Fotografía</option>
+                <option value="Sistema">Sistema</option>
+                <option value="Otros">Otros</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Plataforma</label>
+              <select class="form-select" id="filterPlatform">
+                <option value="">Todas</option>
+                <option value="Windows">Windows</option>
+                <option value="MacOS">MacOS</option>
+                <option value="Linux">Linux</option>
+                <option value="Android">Android</option>
+                <option value="iOS">iOS</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Destacado</label>
+              <select class="form-select" id="filterFeatured">
+                <option value="">Todos</option>
+                <option value="true">Sí</option>
+                <option value="false">No</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Buscar</label>
+              <div class="input-group">
+                <input type="text" class="form-control" id="searchProgram" placeholder="Buscar programa...">
+                <button class="btn btn-outline-secondary" type="button" id="searchBtn">
+                  <i class="fas fa-search"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Programs Table -->
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span><i class="fas fa-laptop-code me-2"></i>Lista de Programas</span>
+          <span class="badge bg-primary" id="totalPrograms">0</span>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover" id="programsTable">
+              <thead>
+                <tr>
+                  <th width="60">#</th>
+                  <th width="80">Imagen</th>
+                  <th>Nombre</th>
+                  <th>Categoría</th>
+                  <th>Versión</th>
+                  <th>Plataforma</th>
+                  <th>Destacado</th>
+                  <th>Descargas</th>
+                  <th>Actualización</th>
+                  <th style="width: 150px;">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="programsList">
+                <!-- Los programas se cargarán aquí dinámicamente -->
+                <tr>
+                  <td colspan="10" class="text-center py-4">Cargando programas...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card-footer d-flex justify-content-between align-items-center">
+          <div>
+            <span class="me-2">Mostrar</span>
+            <select class="form-select form-select-sm d-inline-block w-auto" id="recordsPerPage">
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+            <span class="ms-2">registros</span>
+          </div>
+          <nav aria-label="Page navigation">
+            <ul class="pagination pagination-sm mb-0" id="pagination">
+              <!-- Paginación dinámica -->
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Add/Edit Program Modal -->
+  <div class="modal fade" id="programModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="programModalTitle">Añadir Programa</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="programForm" class="needs-validation" novalidate>
+            <input type="hidden" id="programId">
+            
+            <!-- Basic Information -->
+            <div class="card mb-4">
+              <div class="card-header">
+                <h6 class="mb-0">Información Básica</h6>
+              </div>
+              <div class="card-body">
+                <div class="row g-3">
+                  <div class="col-md-8">
+                    <label for="programName" class="form-label">Nombre*</label>
+                    <input type="text" class="form-control" id="programName" required>
+                    <div class="invalid-feedback">
+                      Por favor ingrese un nombre.
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <label for="programVersion" class="form-label">Versión*</label>
+                    <input type="text" class="form-control" id="programVersion" required>
+                    <div class="invalid-feedback">
+                      Por favor ingrese una versión.
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="programCategory" class="form-label">Categoría*</label>
+                    <select class="form-select" id="programCategory" required>
+                      <option value="">Seleccionar...</option>
+                      <option value="Productividad">Productividad</option>
+                      <option value="Diseño">Diseño</option>
+                      <option value="Seguridad">Seguridad</option>
+                      <option value="Multimedia">Multimedia</option>
+                      <option value="Desarrollo">Desarrollo</option>
+                      <option value="Juegos">Juegos</option>
+                      <option value="Utilidades">Utilidades</option>
+                      <option value="Internet">Internet</option>
+                      <option value="Comunicación">Comunicación</option>
+                      <option value="Educación">Educación</option>
+                      <option value="Negocios">Negocios</option>
+                      <option value="Fotografía">Fotografía</option>
+                      <option value="Sistema">Sistema</option>
+                      <option value="Otros">Otros</option>
+                    </select>
+                    <div class="invalid-feedback">
+                      Por favor seleccione una categoría.
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="programPlatform" class="form-label">Plataforma*</label>
+                    <select class="form-select" id="programPlatform" multiple required>
+                      <option value="Windows">Windows</option>
+                      <option value="MacOS">MacOS</option>
+                      <option value="Linux">Linux</option>
+                      <option value="Android">Android</option>
+                      <option value="iOS">iOS</option>
+                    </select>
+                    <div class="invalid-feedback">
+                      Por favor seleccione al menos una plataforma.
+                    </div>
+                  </div>
+                  <div class="col-md-12">
+                    <label for="programDescription" class="form-label">Descripción Corta*</label>
+                    <textarea class="form-control" id="programDescription" rows="2" required></textarea>
+                    <div class="invalid-feedback">
+                      Por favor ingrese una descripción.
+                    </div>
+                  </div>
+                  <div class="col-md-12">
+                    <label for="programFullDescription" class="form-label">Descripción Completa</label>
+                    <textarea class="form-control" id="programFullDescription" rows="4"></textarea>
+                    <div class="form-text">La descripción completa admite HTML.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Additional Information -->
+            <div class="card mb-4">
+              <div class="card-header">
+                <h6 class="mb-0">Información Adicional</h6>
+              </div>
+              <div class="card-body">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label for="programSize" class="form-label">Tamaño</label>
+                    <div class="input-group">
+                      <input type="text" class="form-control" id="programSize">
+                      <span class="input-group-text">MB</span>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="programDeveloper" class="form-label">Desarrollador</label>
+                    <input type="text" class="form-control" id="programDeveloper">
+                  </div>
+                  <div class="col-md-6">
+                    <label for="programLicense" class="form-label">Licencia</label>
+                    <input type="text" class="form-control" id="programLicense">
+                  </div>
+                  <div class="col-md-6">
+                    <label for="programWebsite" class="form-label">Sitio Web</label>
+                    <input type="url" class="form-control" id="programWebsite">
+                  </div>
+                  <div class="col-md-6">
+                    <label for="programReleaseDate" class="form-label">Fecha de Lanzamiento</label>
+                    <input type="date" class="form-control" id="programReleaseDate">
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-check form-switch mt-4">
+                      <input class="form-check-input" type="checkbox" id="programFeatured">
+                      <label class="form-check-label" for="programFeatured">Programa Destacado</label>
+                    </div>
+                  </div>
+                  <div class="col-md-12">
+                    <label for="programTags" class="form-label">Etiquetas</label>
+                    <input type="text" class="form-control" id="programTags" placeholder="Separadas por comas">
+                    <div class="form-text">Ejemplo: editor, video, profesional</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Download Links -->
+            <div class="card mb-4">
+              <div class="card-header">
+                <h6 class="mb-0">Enlaces de Descarga</h6>
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <label for="programDownloadLink" class="form-label">Enlace Principal</label>
+                  <input type="url" class="form-control" id="programDownloadLink">
+                </div>
+                <div id="mirrorsContainer">
+                  <!-- Mirrors will be added dynamically -->
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-primary" id="addMirrorBtn">
+                  <i class="fas fa-plus-circle me-2"></i>Agregar Enlace Alternativo
+                </button>
+              </div>
+            </div>
+            
+            <!-- Requirements -->
+            <div class="card mb-4">
+              <div class="card-header">
+                <h6 class="mb-0">Requisitos</h6>
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <label for="programMinReq" class="form-label">Requisitos Mínimos</label>
+                  <textarea class="form-control" id="programMinReq" rows="3"></textarea>
+                </div>
+                <div class="mb-3">
+                  <label for="programRecReq" class="form-label">Requisitos Recomendados</label>
+                  <textarea class="form-control" id="programRecReq" rows="3"></textarea>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Features -->
+            <div class="card mb-4">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">Características</h6>
+                <button type="button" class="btn btn-sm btn-outline-primary" id="addFeatureBtn">
+                  <i class="fas fa-plus-circle"></i>
+                </button>
+              </div>
+              <div class="card-body">
+                <div id="featuresContainer">
+                  <!-- Features will be added dynamically -->
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" id="saveProgram">Guardar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Image Upload Modal -->
+  <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="imageModalTitle">Gestionar Imágenes</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="imageProgramId">
+          
+          <!-- Thumbnail Upload -->
+          <div class="card mb-4">
+            <div class="card-header">
+              <h6 class="mb-0">Imagen Principal (Thumbnail)</h6>
+            </div>
+            <div class="card-body">
+              <div class="text-center mb-3" id="thumbnailPreviewContainer">
+                <img src="https://via.placeholder.com/200x150?text=Sin+Imagen" class="img-fluid rounded" id="thumbnailPreview" alt="Thumbnail Preview" style="max-height: 150px;">
+              </div>
+              <div class="mb-3">
+                <label for="thumbnailUpload" class="form-label">Seleccionar Imagen</label>
+                <input class="form-control" type="file" id="thumbnailUpload" accept=".jpg,.jpeg,.png,.webp">
+                <div class="form-text">Formato recomendado: 400x300px</div>
+              </div>
+              <div class="progress mb-3" style="height: 10px; display: none;" id="thumbnailProgress">
+                <div class="progress-bar" role="progressbar" style="width: 0%;" id="thumbnailProgressBar"></div>
+              </div>
+              <button type="button" class="btn btn-primary btn-sm w-100" id="uploadThumbnailBtn">
+                <i class="fas fa-upload me-2"></i>Subir Imagen
+              </div>
+            </div>
+          </div>
+          
+          <!-- Screenshots Upload -->
+          <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h6 class="mb-0">Capturas de Pantalla</h6>
+              <span class="badge bg-primary" id="screenshotsCount">0</span>
+            </div>
+            <div class="card-body">
+              <div class="row g-2 mb-3" id="screenshotsPreview">
+                <!-- Screenshots will be added dynamically -->
+              </div>
+              <div class="mb-3">
+                <label for="screenshotUpload" class="form-label">Seleccionar Imágenes</label>
+                <input class="form-control" type="file" id="screenshotUpload" accept=".jpg,.jpeg,.png,.webp" multiple>
+                <div class="form-text">Puede seleccionar múltiples archivos. Formato recomendado: 1280x720px</div>
+              </div>
+              <div class="progress mb-3" style="height: 10px; display: none;" id="screenshotProgress">
+                <div class="progress-bar" role="progressbar" style="width: 0%;" id="screenshotProgressBar"></div>
+              </div>
+              <button type="button" class="btn btn-primary btn-sm w-100" id="uploadScreenshotsBtn">
+                <i class="fas fa-upload me-2"></i>Subir Capturas
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Delete Confirmation Modal -->
+  <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Confirmar Eliminación</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="deleteProgramId">
+          <p>¿Está seguro que desea eliminar el programa <strong id="deleteProgramName"></strong>?</p>
+          <p class="text-danger">Esta acción no se puede deshacer.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-danger" id="confirmDelete">Eliminar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- JavaScript Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.5/js/dataTables.bootstrap5.min.js"></script>
+  
+  <!-- Admin Panel Script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Authentication check
+      const token = localStorage.getItem('adminToken');
+      const user = JSON.parse(localStorage.getItem('adminUser') || '{}');
+      
+      if (!token) {
+        window.location.href = 'login.html';
+        return;
+      }
+      
+      // Set user info
+      if (user.username || user.name) {
+        document.getElementById('username').textContent = `Hola, ${user.name || user.username}`;
+      }
+      
+      // Logout functionality
+      document.getElementById('logoutBtn').addEventListener('click', logout);
+      document.getElementById('sidebarLogoutBtn').addEventListener('click', logout);
+      
+      function logout(e) {
+        e.preventDefault();
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('adminUser');
+        window.location.href = 'login.html';
+      }
+      
+      // Variables
+      let currentPage = 1;
+      let totalPages = 1;
+      let itemsPerPage = 10;
+      let programsData = [];
+      let filters = {
+        category: '',
+        platform: '',
+        featured: '',
+        search: ''
+      };
+      
+      // Initialize form
+      initProgramForm();
+      
+      // Load programs on page load
+      loadPrograms();
+      
+      // Event listeners
+      document.getElementById('addProgramBtn').addEventListener('click', () => showProgramModal());
+      document.getElementById('saveProgram').addEventListener('click', saveProgram);
+      document.getElementById('searchBtn').addEventListener('click', () => {
+        filters.search = document.getElementById('searchProgram').value;
+        loadPrograms();
+      });
+      
+      // Funcion para descargar un programa
+      function downloadProgram(programId) {
+        // Buscar el programa por ID
+        const program = programsData.find(p => p._id === programId);
+        
+        if (!program) {
+          alert('Programa no encontrado');
+          return;
+        }
+        
+        if (!program.downloadLink) {
+          alert('Este programa no tiene un enlace de descarga válido');
+          return;
+        }
+        
+        // Abrir el enlace de descarga en nueva pestaña
+        window.open(program.downloadLink, '_blank');
+        
+        // Registrar la descarga (opcional)
+        fetch(`/api/admin/programs/${programId}/download`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(response => response.json())
+        .catch(error => console.error('Error registrando descarga:', error));
+      }
+      
+      // Función para gestionar imágenes (redirigir a la página)
+      function manageImages(programId) {
+        window.location.href = `images.html?id=${programId}`;
+      }
+      
+      // Resto de los event listeners
+      document.getElementById('searchProgram').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          filters.search = e.target.value;
+          loadPrograms();
+        }
+      });
+      document.getElementById('filterCategory').addEventListener('change', (e) => {
+        filters.category = e.target.value;
+        loadPrograms();
+      });
+      document.getElementById('filterPlatform').addEventListener('change', (e) => {
+        filters.platform = e.target.value;
+        loadPrograms();
+      });
+      document.getElementById('filterFeatured').addEventListener('change', (e) => {
+        filters.featured = e.target.value;
+        loadPrograms();
+      });
+      document.getElementById('resetFiltersBtn').addEventListener('click', resetFilters);
+      document.getElementById('recordsPerPage').addEventListener('change', (e) => {
+        itemsPerPage = parseInt(e.target.value);
+        loadPrograms();
+      });
+      document.getElementById('addMirrorBtn').addEventListener('click', addMirrorField);
+      document.getElementById('addFeatureBtn').addEventListener('click', addFeatureField);
+      document.getElementById('confirmDelete').addEventListener('click', deleteProgram);
+      document.getElementById('uploadThumbnailBtn').addEventListener('click', uploadThumbnail);
+      document.getElementById('uploadScreenshotsBtn').addEventListener('click', uploadScreenshots);
+      
+      // Load programs from API
+      function loadPrograms() {
+        const programsList = document.getElementById('programsList');
+        programsList.innerHTML = '<tr><td colspan="10" class="text-center py-4"><div class="spinner-border text-primary" role="status"></div><p class="mt-2">Cargando programas...</p></td></tr>';
+        
+        // Build query string based on filters
+        let queryString = `?page=${currentPage}&limit=${itemsPerPage}`;
+        
+        if (filters.category) queryString += `&category=${filters.category}`;
+        if (filters.platform) queryString += `&platform=${filters.platform}`;
+        if (filters.featured) queryString += `&featured=${filters.featured}`;
+        if (filters.search) queryString += `&search=${filters.search}`;
+        
+        // Verificar token
+        if (!token) {
+          programsList.innerHTML = '<tr><td colspan="10" class="text-center py-4 text-danger"><i class="fas fa-exclamation-circle me-2"></i>No hay un token de autenticación válido. Por favor, inicie sesión nuevamente.</td></tr>';
+          return;
+        }
+        
+        console.log('Token:', token.substring(0, 20) + '...');
+        console.log('URL:', `/api/admin/programs${queryString}`);
+        
+        fetch(`/api/admin/programs${queryString}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(response => {
+          console.log('Response status:', response.status);
+          if (!response.ok) {
+            if (response.status === 401) {
+              // Token expired or invalid
+              localStorage.removeItem('adminToken');
+              window.location.href = 'login.html';
+            }
+            throw new Error(`Error: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('Data received:', data);
+          programsData = data.programs || [];
+          totalPages = Math.ceil(data.total / itemsPerPage);
+          
+          document.getElementById('totalPrograms').textContent = data.total || 0;
+          
+          renderProgramsList();
+          renderPagination();
+        })
+        .catch(error => {
+          console.error('Error loading programs:', error);
+          programsList.innerHTML = `<tr><td colspan="10" class="text-center py-4 text-danger"><i class="fas fa-exclamation-circle me-2"></i>${error.message || 'Error al cargar programas'}</td></tr>`;
+        });
+      }
+      
+      // Render programs list
+      function renderProgramsList() {
+        const programsList = document.getElementById('programsList');
+        
+        if (programsData.length === 0) {
+          programsList.innerHTML = '<tr><td colspan="10" class="text-center py-4">No se encontraron programas.</td></tr>';
+          return;
+        }
+        
+        let html = '';
+        
+        programsData.forEach((program, index) => {
+          const rowNum = (currentPage - 1) * itemsPerPage + index + 1;
+          const platforms = program.platform ? program.platform.join(', ') : '';
+          const updatedDate = new Date(program.updateDate || program.createdAt).toLocaleDateString();
+          const thumbnailUrl = program.thumbnail || 'https://via.placeholder.com/50?text=No+Image';
+          
+          html += `
+            <tr>
+              <td>${rowNum}</td>
+              <td>
+                <img src="${thumbnailUrl}" alt="${program.name}" class="thumbnail-preview">
+              </td>
+              <td>
+                <div class="fw-medium">${program.name}</div>
+                <small class="text-muted">${program.developer || ''}</small>
+              </td>
+              <td><span class="badge badge-category bg-secondary">${program.category}</span></td>
+              <td>${program.version || 'N/A'}</td>
+              <td>${platforms}</td>
+              <td>
+                <span class="badge ${program.featured ? 'bg-success' : 'bg-secondary'}">
+                  ${program.featured ? 'Sí' : 'No'}
+                </span>
+              </td>
+              <td>${program.downloads || 0}</td>
+              <td>${updatedDate}</td>              <td>                <div class="btn-group">
+                  <a href="edit.html?id=${program._id}" class="btn btn-sm btn-outline-primary btn-action"
+                    title="Editar programa">
+                    <i class="fas fa-edit"></i>
+                  </a>
+                  <a href="images.html?id=${program._id}" class="btn btn-sm btn-outline-info btn-action"
+                    title="Gestionar imágenes">
+                    <i class="fas fa-images"></i>
+                  </a>
+                  <button type="button" class="btn btn-sm btn-outline-secondary btn-action"
+                    onclick="downloadProgram('${program._id}')" title="Descargar programa">
+                    <i class="fas fa-download"></i>
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-danger btn-action"
+                    onclick="confirmDelete('${program._id}', '${program.name}')" title="Eliminar programa">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          `;
+        });
+        
+        programsList.innerHTML = html;
+      }
+      
+      // Render pagination
+      function renderPagination() {
+        const pagination = document.getElementById('pagination');
+        
+        if (totalPages <= 1) {
+          pagination.innerHTML = '';
+          return;
+        }
+        
+        let html = '';
+        
+        // Previous button
+        html += `
+          <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+            <a class="page-link" href="#" onclick="changePage(${currentPage - 1})" aria-label="Previous">
+              <span aria-hidden="true">&laquo;</span>
+            </a>
+          </li>
+        `;
+        
+        // Page numbers
+        const maxPages = 5; // Max pages to show
+        const startPage = Math.max(1, currentPage - Math.floor(maxPages / 2));
+        const endPage = Math.min(totalPages, startPage + maxPages - 1);
+        
+        for (let i = startPage; i <= endPage; i++) {
+          html += `
+            <li class="page-item ${currentPage === i ? 'active' : ''}">
+              <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
+            </li>
+          `;
+        }
+        
+        // Next button
+        html += `
+          <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+            <a class="page-link" href="#" onclick="changePage(${currentPage + 1})" aria-label="Next">
+              <span aria-hidden="true">&raquo;</span>
+            </a>
+          </li>
+        `;
+        
+        pagination.innerHTML = html;
+        
+        // Add global function for pagination
+        window.changePage = function(page) {
+          if (page < 1 || page > totalPages || page === currentPage) {
+            return;
+          }
+          
+          currentPage = page;
+          loadPrograms();
+        };
+      }
+      
+      // Initialize program form
+      function initProgramForm() {
+        document.getElementById('mirrorsContainer').innerHTML = '';
+        document.getElementById('featuresContainer').innerHTML = '';
+        
+        // Add first feature field
+        addFeatureField();
+      }
+      
+      // Show program modal for add/edit
+      function showProgramModal(programId = null) {
+        const modal = new bootstrap.Modal(document.getElementById('programModal'));
+        const modalTitle = document.getElementById('programModalTitle');
+        const form = document.getElementById('programForm');
+        
+        // Reset form
+        form.reset();
+        document.getElementById('mirrorsContainer').innerHTML = '';
+        document.getElementById('featuresContainer').innerHTML = '';
+        addFeatureField();
+        
+        if (programId) {
+          // Edit existing program
+          modalTitle.textContent = 'Editar Programa';
+          document.getElementById('programId').value = programId;
+          
+          // Find program data
+          const program = programsData.find(p => p._id === programId);
+          
+          if (program) {
+            // Fill form with program data
+            document.getElementById('programName').value = program.name || '';
+            document.getElementById('programVersion').value = program.version || '';
+            document.getElementById('programCategory').value = program.category || '';
+            document.getElementById('programDescription').value = program.description || '';
+            document.getElementById('programFullDescription').value = program.fullDescription || '';
+            document.getElementById('programSize').value = program.size ? program.size.replace('MB', '').trim() : '';
+            document.getElementById('programDeveloper').value = program.developer || '';
+            document.getElementById('programLicense').value = program.license || '';
+            document.getElementById('programWebsite').value = program.website || '';
+            document.getElementById('programDownloadLink').value = program.downloadLink || '';
+            document.getElementById('programFeatured').checked = program.featured || false;
+            
+            // Handle release date
+            if (program.releaseDate) {
+              const date = new Date(program.releaseDate);
+              document.getElementById('programReleaseDate').value = date.toISOString().split('T')[0];
+            }
+            
+            // Handle tags
+            if (program.tags && program.tags.length > 0) {
+              document.getElementById('programTags').value = program.tags.join(', ');
+            }
+            
+            // Handle platforms (multiselect)
+            const platformSelect = document.getElementById('programPlatform');
+            if (program.platform && program.platform.length > 0) {
+              Array.from(platformSelect.options).forEach(option => {
+                option.selected = program.platform.includes(option.value);
+              });
+            }
+            
+            // Handle requirements
+            if (program.requirements) {
+              if (program.requirements.minimal) {
+                if (Array.isArray(program.requirements.minimal)) {
+                  document.getElementById('programMinReq').value = program.requirements.minimal.join('\n');
+                } else {
+                  document.getElementById('programMinReq').value = program.requirements.minimal;
+                }
+              }
+              
+              if (program.requirements.recommended) {
+                if (Array.isArray(program.requirements.recommended)) {
+                  document.getElementById('programRecReq').value = program.requirements.recommended.join('\n');
+                } else {
+                  document.getElementById('programRecReq').value = program.requirements.recommended;
+                }
+              }
+            }
+            
+            // Handle features
+            document.getElementById('featuresContainer').innerHTML = '';
+            if (program.features && program.features.length > 0) {
+              program.features.forEach(feature => {
+                addFeatureField(feature);
+              });
+            } else {
+              addFeatureField();
+            }
+            
+            // Handle mirrors
+            if (program.mirrors && program.mirrors.length > 0) {
+              program.mirrors.forEach(mirror => {
+                addMirrorField(mirror.name, mirror.url);
+              });
+            }
+          }
+        } else {
+          // Add new program
+          modalTitle.textContent = 'Añadir Programa';
+          document.getElementById('programId').value = '';
+        }
+        
+        // Add global function for edit/delete/image management
+        window.editProgram = function(id) {
+          showProgramModal(id);
+        };
+        
+        window.manageImages = function(id) {
+          showImageModal(id);
+        };
+        
+        window.confirmDelete = function(id, name) {
+          document.getElementById('deleteProgramId').value = id;
+          document.getElementById('deleteProgramName').textContent = name;
+          const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+          deleteModal.show();
+        };
+        
+        modal.show();
+      }
+      
+      // Show image modal for managing program images
+      function showImageModal(programId) {
+        const modal = new bootstrap.Modal(document.getElementById('imageModal'));
+        document.getElementById('imageProgramId').value = programId;
+        
+        // Find program data
+        const program = programsData.find(p => p._id === programId);
+        
+        if (program) {
+          // Set thumbnail preview if available
+          const thumbnailPreview = document.getElementById('thumbnailPreview');
+          if (program.thumbnail) {
+            thumbnailPreview.src = program.thumbnail;
+          } else {
+            thumbnailPreview.src = 'https://via.placeholder.com/200x150?text=Sin+Imagen';
+          }
+          
+          // Render screenshots
+          const screenshotsPreview = document.getElementById('screenshotsPreview');
+          screenshotsPreview.innerHTML = '';
+          
+          if (program.screenshots && program.screenshots.length > 0) {
+            program.screenshots.forEach((screenshot, index) => {
+              const col = document.createElement('div');
+              col.className = 'col-6';
+              col.innerHTML = `
+                <div class="position-relative">
+                  <img src="${screenshot}" class="img-fluid rounded" alt="Screenshot ${index + 1}">
+                  <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1"
+                    onclick="deleteScreenshot('${programId}', '${screenshot}')">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+              `;
+              screenshotsPreview.appendChild(col);
+            });
+            document.getElementById('screenshotsCount').textContent = program.screenshots.length;
+          } else {
+            screenshotsPreview.innerHTML = '<div class="col-12 text-center py-3 text-muted">No hay capturas de pantalla</div>';
+            document.getElementById('screenshotsCount').textContent = '0';
+          }
+        }
+        
+        // Add global function for screenshot deletion
+        window.deleteScreenshot = function(programId, screenshotUrl) {
+          if (confirm('¿Está seguro que desea eliminar esta captura de pantalla?')) {
+            const screenshotFilename = screenshotUrl.split('/').pop();
+            
+            fetch('/api/admin/screenshots', {
+              method: 'DELETE',
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                programId: programId,
+                screenshot: screenshotFilename
+              })
+            })
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('Error al eliminar la captura de pantalla');
+              }
+              return response.json();
+            })
+            .then(data => {
+              alert('Captura de pantalla eliminada exitosamente');
+              // Reload program data
+              loadPrograms();
+              // Update image modal
+              showImageModal(programId);
+            })
+            .catch(error => {
+              console.error('Error deleting screenshot:', error);
+              alert('Error al eliminar la captura de pantalla: ' + error.message);
+            });
+          }
+        };
+        
+        modal.show();
+      }
+      
+      // Upload thumbnail
+      function uploadThumbnail() {
+        const programId = document.getElementById('imageProgramId').value;
+        const fileInput = document.getElementById('thumbnailUpload');
+        
+        if (!programId) {
+          alert('ID de programa no válido');
+          return;
+        }
+        
+        if (!fileInput.files || fileInput.files.length === 0) {
+          alert('Por favor seleccione una imagen');
+          return;
+        }
+        
+        const file = fileInput.files[0];
+        const formData = new FormData();
+        formData.append('thumbnail', file);
+        
+        // Show progress bar
+        const progressContainer = document.getElementById('thumbnailProgress');
+        const progressBar = document.getElementById('thumbnailProgressBar');
+        progressContainer.style.display = 'block';
+        progressBar.style.width = '0%';
+        
+        // Upload file
+        fetch(`/api/admin/programs/${programId}/thumbnail`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+          body: formData
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Error al subir thumbnail');
+          }
+          return response.json();
+        })
+        .then(data => {
+          // Update progress
+          progressBar.style.width = '100%';
+          
+          // Update thumbnail preview
+          if (data.program && data.program.thumbnail) {
+            document.getElementById('thumbnailPreview').src = data.program.thumbnail;
+          }
+          
+          // Reset file input
+          fileInput.value = '';
+          
+          // Reload programs data
+          loadPrograms();
+          
+          // Hide progress bar after a delay
+          setTimeout(() => {
+            progressContainer.style.display = 'none';
+          }, 1500);
+          
+          alert('Imagen principal actualizada exitosamente');
+        })
+        .catch(error => {
+          console.error('Error uploading thumbnail:', error);
+          progressContainer.style.display = 'none';
+          alert('Error al subir imagen: ' + error.message);
+        });
+      }
+      
+      // Upload screenshots
+      function uploadScreenshots() {
+        const programId = document.getElementById('imageProgramId').value;
+        const fileInput = document.getElementById('screenshotUpload');
+        
+        if (!programId) {
+          alert('ID de programa no válido');
+          return;
+        }
+        
+        if (!fileInput.files || fileInput.files.length === 0) {
+          alert('Por favor seleccione al menos una imagen');
+          return;
+        }
+        
+        const formData = new FormData();
+        for (let i = 0; i < fileInput.files.length; i++) {
+          formData.append('screenshots', fileInput.files[i]);
+        }
+        
+        // Show progress bar
+        const progressContainer = document.getElementById('screenshotProgress');
+        const progressBar = document.getElementById('screenshotProgressBar');
+        progressContainer.style.display = 'block';
+        progressBar.style.width = '0%';
+        
+        // Upload files
+        fetch(`/api/admin/programs/${programId}/screenshots`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+          body: formData
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Error al subir capturas de pantalla');
+          }
+          return response.json();
+        })
+        .then(data => {
+          // Update progress
+          progressBar.style.width = '100%';
+          
+          // Reset file input
+          fileInput.value = '';
+          
+          // Reload programs data
+          loadPrograms();
+          
+          // Update image modal
+          showImageModal(programId);
+          
+          // Hide progress bar after a delay
+          setTimeout(() => {
+            progressContainer.style.display = 'none';
+          }, 1500);
+          
+          alert('Capturas de pantalla subidas exitosamente');
+        })
+        .catch(error => {
+          console.error('Error uploading screenshots:', error);
+          progressContainer.style.display = 'none';
+          alert('Error al subir capturas: ' + error.message);
+        });
+      }
+      
+      // Save program (create or update)
+      function saveProgram() {
+        // Validate form
+        const form = document.getElementById('programForm');
+        if (!form.checkValidity()) {
+          form.classList.add('was-validated');
+          return;
+        }
+        
+        // Get all form values
+        const programId = document.getElementById('programId').value;
+        
+        const platformSelect = document.getElementById('programPlatform');
+        const selectedPlatforms = Array.from(platformSelect.selectedOptions).map(option => option.value);
+        
+        // Prepare tags array
+        const tagsString = document.getElementById('programTags').value;
+        const tags = tagsString ? tagsString.split(',').map(tag => tag.trim()).filter(Boolean) : [];
+        
+        // Prepare mirrors array
+        const mirrorsContainer = document.getElementById('mirrorsContainer');
+        const mirrorGroups = mirrorsContainer.querySelectorAll('.mirror-group');
+        const mirrors = [];
+        
+        mirrorGroups.forEach(group => {
+          const nameInput = group.querySelector('input[name="mirrorName"]');
+          const urlInput = group.querySelector('input[name="mirrorUrl"]');
+          
+          if (nameInput && urlInput && nameInput.value && urlInput.value) {
+            mirrors.push({
+              name: nameInput.value,
+              url: urlInput.value
+            });
+          }
+        });
+        
+        // Prepare features array
+        const featuresContainer = document.getElementById('featuresContainer');
+        const featureInputs = featuresContainer.querySelectorAll('input[name="feature"]');
+        const features = [];
+        
+        featureInputs.forEach(input => {
+          if (input.value.trim()) {
+            features.push(input.value.trim());
+          }
+        });
+        
+        // Prepare requirements
+        const minReqText = document.getElementById('programMinReq').value;
+        const recReqText = document.getElementById('programRecReq').value;
+        
+        const requirements = {
+          minimal: minReqText ? minReqText.split('\n').filter(Boolean) : [],
+          recommended: recReqText ? recReqText.split('\n').filter(Boolean) : []
+        };
+        
+        // If only one requirement, make it a string instead of array
+        if (requirements.minimal.length === 1) {
+          requirements.minimal = requirements.minimal[0];
+        }
+        if (requirements.recommended.length === 1) {
+          requirements.recommended = requirements.recommended[0];
+        }
+        
+        // Prepare program data
+        const programData = {
+          name: document.getElementById('programName').value,
+          description: document.getElementById('programDescription').value,
+          fullDescription: document.getElementById('programFullDescription').value,
+          category: document.getElementById('programCategory').value,
+          version: document.getElementById('programVersion').value,
+          platform: selectedPlatforms,
+          size: document.getElementById('programSize').value ? `${document.getElementById('programSize').value} MB` : '',
+          developer: document.getElementById('programDeveloper').value,
+          license: document.getElementById('programLicense').value,
+          website: document.getElementById('programWebsite').value,
+          downloadLink: document.getElementById('programDownloadLink').value,
+          featured: document.getElementById('programFeatured').checked,
+          releaseDate: document.getElementById('programReleaseDate').value || null,
+          tags,
+          mirrors,
+          features,
+          requirements
+        };
+        
+        // Determine if create or update
+        const isUpdate = Boolean(programId);
+        const url = isUpdate ? `/api/admin/programs/${programId}` : '/api/admin/programs';
+        const method = isUpdate ? 'PUT' : 'POST';
+        
+        // Send request
+        fetch(url, {
+          method: method,
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(programData)
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`Error: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          // Hide modal
+          const modal = bootstrap.Modal.getInstance(document.getElementById('programModal'));
+          modal.hide();
+          
+          // Reload programs
+          loadPrograms();
+          
+          // Confirmation message
+          alert(isUpdate ? 'Programa actualizado exitosamente' : 'Programa creado exitosamente');
+        })
+        .catch(error => {
+          console.error('Error saving program:', error);
+          alert(`Error: ${error.message}`);
+        });
+      }
+      
+      // Delete program
+      function deleteProgram() {
+        const programId = document.getElementById('deleteProgramId').value;
+        
+        if (!programId) {
+          return;
+        }
+        
+        fetch(`/api/admin/programs/${programId}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`Error: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          // Hide modal
+          const modal = bootstrap.Modal.getInstance(document.getElementById('deleteModal'));
+          modal.hide();
+          
+          // Reload programs
+          loadPrograms();
+          
+          // Confirmation message
+          alert('Programa eliminado exitosamente');
+        })
+        .catch(error => {
+          console.error('Error deleting program:', error);
+          alert(`Error: ${error.message}`);
+        });
+      }
+      
+      // Add mirror field
+      function addMirrorField(name = '', url = '') {
+        const mirrorsContainer = document.getElementById('mirrorsContainer');
+        const mirrorCount = mirrorsContainer.childElementCount;
+        
+        const mirrorGroup = document.createElement('div');
+        mirrorGroup.className = 'mirror-group mb-3';
+        
+        mirrorGroup.innerHTML = `
+          <div class="row g-2">
+            <div class="col-md-4">
+              <input type="text" class="form-control form-control-sm" name="mirrorName"
+                placeholder="Nombre" value="${name}">
+            </div>
+            <div class="col-md-7">
+              <input type="url" class="form-control form-control-sm" name="mirrorUrl"
+                placeholder="URL" value="${url}">
+            </div>
+            <div class="col-md-1">
+              <button type="button" class="btn btn-sm btn-outline-danger w-100 remove-mirror">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+          </div>
+        `;
+        
+        mirrorsContainer.appendChild(mirrorGroup);
+        
+        // Add remove event listener to new button
+        const removeBtn = mirrorGroup.querySelector('.remove-mirror');
+        if (removeBtn) {
+          removeBtn.addEventListener('click', function() {
+            mirrorsContainer.removeChild(mirrorGroup);
+          });
+        }
+      }
+      
+      // Add feature field
+      function addFeatureField(value = '') {
+        const featuresContainer = document.getElementById('featuresContainer');
+        const featureCount = featuresContainer.childElementCount;
+        
+        const featureGroup = document.createElement('div');
+        featureGroup.className = 'feature-group mb-2';
+        
+        featureGroup.innerHTML = `
+          <div class="input-group input-group-sm">
+            <span class="input-group-text">
+              <i class="fas fa-check-circle"></i>
+            </span>
+            <input type="text" class="form-control" name="feature" 
+              placeholder="Característica del programa" value="${value}">
+            <button class="btn btn-outline-danger remove-feature" type="button">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        `;
+        
+        featuresContainer.appendChild(featureGroup);
+        
+        // Add remove event listener to new button
+        const removeBtn = featureGroup.querySelector('.remove-feature');
+        if (removeBtn) {
+          removeBtn.addEventListener('click', function() {
+            featuresContainer.removeChild(featureGroup);
+          });
+        }
+      }
+      
+      // Reset filters
+      function resetFilters() {
+        document.getElementById('filterCategory').value = '';
+        document.getElementById('filterPlatform').value = '';
+        document.getElementById('filterFeatured').value = '';
+        document.getElementById('searchProgram').value = '';
+        
+        filters = {
+          category: '',
+          platform: '',
+          featured: '',
+          search: ''
+        };
+        
+        currentPage = 1;
+        loadPrograms();
+      }
+    });
+  </script>
+</body>
+</html>

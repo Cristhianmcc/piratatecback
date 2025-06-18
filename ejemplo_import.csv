@@ -1,0 +1,6 @@
+name,description,category,version,platform,developer,license,size,releaseDate,thumbnail,downloadLink
+Microsoft Office,Suite ofimática completa con Word Excel PowerPoint y más para uso personal y empresarial,Productividad,2023,"Windows,MacOS",Microsoft,Comercial,2.5GB,2023-01-15,https://example.com/office-thumbnail.jpg,https://example.com/office-download
+Adobe Photoshop,Editor de imágenes profesional para diseño gráfico y fotografía,Diseño,25.0,"Windows,MacOS",Adobe,Suscripción,2.1GB,2023-02-20,https://example.com/photoshop-thumbnail.jpg,https://example.com/photoshop-download
+Visual Studio Code,Editor de código gratuito y potente para desarrolladores,Desarrollo,1.80,"Windows,MacOS,Linux",Microsoft,MIT,100MB,2023-03-10,https://example.com/vscode-thumbnail.jpg,https://example.com/vscode-download
+VLC Media Player,Reproductor multimedia gratuito que soporta prácticamente todos los formatos de video y audio,Multimedia,3.0.18,"Windows,MacOS,Linux,Android,iOS",VideoLAN,GPL,40MB,2023-01-05,https://example.com/vlc-thumbnail.jpg,https://example.com/vlc-download
+Avast Antivirus,Protección contra virus malware y amenazas en línea para tu dispositivo,Seguridad,22.5,"Windows,MacOS,Android",Avast,Freemium,300MB,2023-03-01,https://example.com/avast-thumbnail.jpg,https://example.com/avast-download

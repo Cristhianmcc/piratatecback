@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Importar CSV - Pirata Tecnológico</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #0d6efd;
+      --secondary: #6c757d;
+      --success: #198754;
+      --warning: #ffc107;
+      --danger: #dc3545;
+      --dark: #212529;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f8f9fa;
+    }
+    
+    .sidebar {
+      min-height: 100vh;
+      background: #212529;
+      color: #fff;
+      position: fixed;
+      width: 250px;
+      z-index: 1000;
+      padding-top: 10px;
+      overflow-y: auto;
+    }
+    
+    .main-content {
+      margin-left: 250px;
+      padding: 20px;
+    }
+    
+    .brand {
+      padding: 15px;
+      font-size: 22px;
+      font-weight: bold;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .nav-link {
+      color: rgba(255, 255, 255, 0.7);
+      padding: 12px 20px;
+      border-radius: 5px;
+      margin: 5px 15px;
+      display: flex;
+      align-items: center;
+    }
+    
+    .nav-link i {
+      margin-right: 10px;
+      width: 20px;
+      text-align: center;
+    }
+    
+    .nav-link:hover,
+    .nav-link.active {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+    
+    .card {
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      margin-bottom: 25px;
+    }
+    
+    .card-header {
+      border-bottom: 1px solid #f2f2f2;
+      background: #fff;
+      padding: 15px 20px;
+      font-weight: 600;
+    }
+    
+    .top-bar {
+      background: #fff;
+      padding: 15px 20px;
+      border-bottom: 1px solid #dee2e6;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    
+    .breadcrumb {
+      margin-bottom: 0;
+    }
+    
+    .import-steps .step {
+      padding: 20px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      margin-bottom: 20px;
+      position: relative;
+    }
+    
+    .import-steps .step-number {
+      position: absolute;
+      top: -15px;
+      left: -15px;
+      width: 36px;
+      height: 36px;
+      background: var(--primary);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 18px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .import-result {
+      max-height: 300px;
+      overflow-y: auto;
+      background: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      padding: 15px;
+    }
+    
+    .import-result .success {
+      color: var(--success);
+    }
+    
+    .import-result .error {
+      color: var(--danger);
+    }
+    
+    .template-card {
+      border: 2px dashed #dee2e6;
+      transition: all 0.3s ease;
+    }
+    
+    .template-card:hover {
+      border-color: var(--primary);
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="brand d-flex align-items-center">
+      <i class="fas fa-skull-crossbones me-2"></i>
+      <span>Pirata Tech</span>
+    </div>
+      <div class="mt-4">
+      <p class="text-light px-4 mb-2 opacity-75 small">MENÚ</p>
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <a class="nav-link" href="dashboard.html">
+            <i class="fas fa-tachometer-alt"></i>
+            <span>Dashboard</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="programs.html">
+            <i class="fas fa-laptop-code"></i>
+            <span>Programas</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="upload.html">
+            <i class="fas fa-upload"></i>
+            <span>Subir Programa</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="images.html">
+            <i class="fas fa-images"></i>
+            <span>Gestionar Imágenes</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="import.html">
+            <i class="fas fa-file-import"></i>
+            <span>Importar CSV</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="settings.html">
+            <i class="fas fa-cog"></i>
+            <span>Configuración</span>
+          </a>
+        </li>
+        <li class="nav-item mt-3">
+          <a class="nav-link text-danger" href="#" id="logoutBtn">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Cerrar Sesión</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content pb-5">
+    <!-- Top Bar -->
+    <div class="top-bar d-flex justify-content-between align-items-center">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+          <li class="breadcrumb-item"><a href="dashboard.html">Inicio</a></li>
+          <li class="breadcrumb-item active">Importar CSV</li>
+        </ol>
+      </nav>
+      
+      <div class="d-flex align-items-center">
+        <span class="me-3" id="username"></span>
+        <div class="dropdown">
+          <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+            <i class="fas fa-user-circle"></i>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="profile.html"><i class="fas fa-user me-2"></i>Mi Perfil</a></li>
+            <li><a class="dropdown-item" href="settings.html"><i class="fas fa-cog me-2"></i>Configuración</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#" id="sidebarLogoutBtn"><i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Page Content -->
+    <div class="container-fluid">
+      <!-- Page Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">Importar Datos CSV</h1>
+      </div>
+      
+      <!-- Import Instructions -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <i class="fas fa-info-circle me-2"></i>Instrucciones
+        </div>
+        <div class="card-body">
+          <p>Esta herramienta te permite importar múltiples programas a la vez desde un archivo CSV (valores separados por comas).</p>
+          <p>Para garantizar una importación exitosa, asegúrate de seguir el formato correcto y utilizar la plantilla proporcionada.</p>
+          
+          <div class="alert alert-warning mt-3">
+            <h6><i class="fas fa-exclamation-triangle me-2"></i>Importante</h6>
+            <p class="mb-0">
+              Los campos obligatorios son: <strong>name</strong>, <strong>description</strong>, <strong>category</strong>, <strong>version</strong>, y <strong>platform</strong>.
+              Las plataformas múltiples deben estar separadas por barras verticales (ej. "Windows|MacOS").
+            </p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- CSV Templates -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <i class="fas fa-file-download me-2"></i>Plantillas CSV
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-4">
+              <div class="card template-card p-3 text-center">
+                <div class="mb-2">
+                  <i class="fas fa-file-csv fa-3x text-primary"></i>
+                </div>
+                <h5>Plantilla Básica</h5>
+                <p class="text-muted small">Solo campos obligatorios</p>
+                <a href="#" class="btn btn-sm btn-primary" id="downloadBasicTemplate">
+                  <i class="fas fa-download me-2"></i>Descargar Plantilla
+                </a>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card template-card p-3 text-center">
+                <div class="mb-2">
+                  <i class="fas fa-file-csv fa-3x text-success"></i>
+                </div>
+                <h5>Plantilla Completa</h5>
+                <p class="text-muted small">Todos los campos posibles</p>
+                <a href="#" class="btn btn-sm btn-success" id="downloadFullTemplate">
+                  <i class="fas fa-download me-2"></i>Descargar Plantilla
+                </a>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card template-card p-3 text-center">
+                <div class="mb-2">
+                  <i class="fas fa-file-csv fa-3x text-info"></i>
+                </div>
+                <h5>Plantilla con Ejemplos</h5>
+                <p class="text-muted small">Incluye datos de muestra</p>
+                <a href="#" class="btn btn-sm btn-info" id="downloadSampleTemplate">
+                  <i class="fas fa-download me-2"></i>Descargar Plantilla
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Import Steps -->
+      <div class="import-steps">
+        <!-- Step 1 -->
+        <div class="step">
+          <div class="step-number">1</div>
+          <h5 class="mb-3">Selecciona tu archivo CSV</h5>
+          <div class="mb-3">
+            <input class="form-control" type="file" id="csvFileInput" accept=".csv">
+            <div class="form-text">Tamaño máximo: 10MB</div>
+          </div>
+          <div class="mb-3">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="headerRowCheck" checked>
+              <label class="form-check-label" for="headerRowCheck">
+                El archivo incluye una fila de encabezados
+              </label>
+            </div>
+          </div>
+          <button class="btn btn-primary" id="validateCsvBtn" disabled>
+            <i class="fas fa-check-circle me-2"></i>Validar CSV
+          </button>
+        </div>
+        
+        <!-- Step 2 -->
+        <div class="step" id="step2" style="display: none;">
+          <div class="step-number">2</div>
+          <h5 class="mb-3">Previsualización y Mapeo de Columnas</h5>
+          <div class="alert alert-success" id="csvValidSuccess" style="display: none;">
+            <i class="fas fa-check-circle me-2"></i>
+            El archivo CSV es válido y contiene <strong id="csvRowCount">0</strong> registros.
+          </div>
+          <div class="alert alert-danger" id="csvValidError" style="display: none;">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <span id="csvErrorMessage"></span>
+          </div>
+          
+          <div class="card mb-3" id="previewCard" style="display: none;">
+            <div class="card-header">
+              <i class="fas fa-table me-2"></i>Previsualización
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-sm table-bordered" id="previewTable">
+                  <thead id="previewTableHead"></thead>
+                  <tbody id="previewTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          
+          <div id="mappingSection" style="display: none;">
+            <h6 class="mb-3">Configuración de Importación</h6>
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="updateExistingCheck" checked>
+                  <label class="form-check-label" for="updateExistingCheck">
+                    Actualizar programas existentes por nombre
+                  </label>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="skipErrorsCheck">
+                  <label class="form-check-label" for="skipErrorsCheck">
+                    Continuar importando si hay errores
+                  </label>
+                </div>
+              </div>
+            </div>
+            
+            <button class="btn btn-primary" id="importCsvBtn">
+              <i class="fas fa-file-import me-2"></i>Importar Datos
+            </button>
+          </div>
+        </div>
+        
+        <!-- Step 3 -->
+        <div class="step" id="step3" style="display: none;">
+          <div class="step-number">3</div>
+          <h5 class="mb-3">Resultados de la Importación</h5>
+          
+          <div class="progress mb-3">
+            <div class="progress-bar progress-bar-striped" role="progressbar" style="width: 0%" id="importProgress"></div>
+          </div>
+          
+          <div class="d-flex justify-content-between mb-3">
+            <div>
+              <strong>Total procesados: </strong><span id="totalProcessed">0</span> / <span id="totalToProcess">0</span>
+            </div>
+            <div>
+              <span class="badge bg-success me-2">Éxito: <span id="totalSuccess">0</span></span>
+              <span class="badge bg-danger">Errores: <span id="totalErrors">0</span></span>
+            </div>
+          </div>
+          
+          <div class="import-result mb-3" id="importResults">
+            <div class="text-center text-muted py-3">Los resultados se mostrarán aquí</div>
+          </div>
+          
+          <div class="d-flex justify-content-between">
+            <button class="btn btn-secondary" id="startOverBtn">
+              <i class="fas fa-redo me-2"></i>Comenzar de Nuevo
+            </button>
+            <a href="programs.html" class="btn btn-primary">
+              <i class="fas fa-laptop-code me-2"></i>Ver Programas
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- JavaScript Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+  
+  <!-- Admin Panel Script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Authentication check
+      const token = localStorage.getItem('adminToken');
+      const user = JSON.parse(localStorage.getItem('adminUser') || '{}');
+      
+      if (!token) {
+        window.location.href = 'login.html';
+        return;
+      }
+      
+      // Set user info
+      if (user.username || user.name) {
+        document.getElementById('username').textContent = `Hola, ${user.name || user.username}`;
+      }
+      
+      // Logout functionality
+      document.getElementById('logoutBtn').addEventListener('click', logout);
+      document.getElementById('sidebarLogoutBtn').addEventListener('click', logout);
+      
+      function logout(e) {
+        e.preventDefault();
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('adminUser');
+        window.location.href = 'login.html';
+      }
+      
+      // Variables
+      let csvData = [];
+      let csvHeaders = [];
+      let validCsv = false;
+      
+      // File input change event
+      document.getElementById('csvFileInput').addEventListener('change', function(e) {
+        if (e.target.files.length > 0) {
+          document.getElementById('validateCsvBtn').disabled = false;
+        } else {
+          document.getElementById('validateCsvBtn').disabled = true;
+        }
+      });
+      
+      // Template download buttons
+      document.getElementById('downloadBasicTemplate').addEventListener('click', function(e) {
+        e.preventDefault();
+        downloadTemplate('basic');
+      });
+      
+      document.getElementById('downloadFullTemplate').addEventListener('click', function(e) {
+        e.preventDefault();
+        downloadTemplate('full');
+      });
+      
+      document.getElementById('downloadSampleTemplate').addEventListener('click', function(e) {
+        e.preventDefault();
+        downloadTemplate('sample');
+      });
+      
+      // Validate CSV button click event
+      document.getElementById('validateCsvBtn').addEventListener('click', validateCsv);
+      
+      // Import CSV button click event
+      document.getElementById('importCsvBtn').addEventListener('click', importCsv);
+      
+      // Start over button click event
+      document.getElementById('startOverBtn').addEventListener('click', function() {
+        location.reload();
+      });
+      
+      // Download CSV template
+      function downloadTemplate(type) {
+        // Define headers based on template type
+        let headers;
+        let sampleData = [];
+        
+        if (type === 'basic') {
+          headers = ['name', 'description', 'category', 'version', 'platform'];
+        } else {
+          headers = [
+            'name', 'description', 'fullDescription', 'category', 'version', 
+            'platform', 'size', 'developer', 'license', 'website', 
+            'downloadLink', 'featured', 'tags', 'minRequirements', 'recRequirements',
+            'features'
+          ];
+        }
+        
+        // Add sample data if needed
+        if (type === 'sample') {
+          sampleData = [
+            {
+              name: 'VLC Media Player',
+              description: 'Reproductor multimedia ligero y potente',
+              fullDescription: 'VLC es un reproductor multimedia libre y de código abierto multiplataforma y un «framework» que reproduce la mayoría de archivos multimedia, así como DVD, Audio CD, VCD y diversos protocolos de transmisión.',
+              category: 'Multimedia',
+              version: '3.0.16',
+              platform: 'Windows|MacOS|Linux',
+              size: '38',
+              developer: 'VideoLAN',
+              license: 'GPL',
+              website: 'https://www.videolan.org/vlc/',
+              downloadLink: 'https://www.videolan.org/vlc/download-windows.html',
+              featured: 'true',
+              tags: 'video,reproductor,multimedia,streaming',
+              minRequirements: 'Windows 7, macOS 10.10, Ubuntu 16.04',
+              recRequirements: 'Windows 10, macOS 12, Ubuntu 20.04',
+              features: 'Reproduce casi cualquier formato|Streaming y webcam|Conversión de formatos'
+            },
+            {
+              name: 'GIMP',
+              description: 'Programa de edición de imágenes gratuito y de código abierto',
+              fullDescription: 'GIMP (GNU Image Manipulation Program) es un programa de edición de imágenes digitales en forma de mapa de bits, tanto dibujos como fotografías.',
+              category: 'Diseño',
+              version: '2.10.24',
+              platform: 'Windows|MacOS|Linux',
+              size: '200',
+              developer: 'The GIMP Team',
+              license: 'GPL',
+              website: 'https://www.gimp.org/',
+              downloadLink: 'https://www.gimp.org/downloads/',
+              featured: 'true',
+              tags: 'diseño,imagen,edición,photoshop',
+              minRequirements: 'Windows 7, macOS 10.9, Linux con GTK+ 2.8',
+              recRequirements: 'Windows 10, macOS 12, Linux con GTK+ 3.0',
+              features: 'Herramientas de manipulación de imagen|Soporte para capas|Ampliable mediante plugins'
+            }
+          ];
+        }
+        
+        // Create CSV content
+        let csvContent = headers.join(',') + '\n';
+        
+        // Add sample data rows if any
+        if (sampleData.length > 0) {
+          sampleData.forEach(row => {
+            let rowData = headers.map(header => {
+              return row[header] ? `"${row[header]}"` : '';
+            });
+            csvContent += rowData.join(',') + '\n';
+          });
+        }
+        
+        // Create download link and trigger click
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.setAttribute('href', url);
+        a.setAttribute('download', `pirata_tech_${type}_template.csv`);
+        a.click();
+      }
+      
+      // Validate CSV file
+      function validateCsv() {
+        const fileInput = document.getElementById('csvFileInput');
+        const hasHeader = document.getElementById('headerRowCheck').checked;
+        
+        if (fileInput.files.length === 0) {
+          alert('Por favor selecciona un archivo CSV');
+          return;
+        }
+        
+        const file = fileInput.files[0];
+        if (file.size > 10 * 1024 * 1024) { // 10MB limit
+          alert('El archivo es demasiado grande. El tamaño máximo es 10MB.');
+          return;
+        }
+        
+        // Parse CSV using PapaParse
+        Papa.parse(file, {
+          header: hasHeader,
+          skipEmptyLines: true,
+          complete: function(results) {
+            csvData = results.data;
+            csvHeaders = hasHeader ? results.meta.fields : [];
+            
+            // Show step 2
+            document.getElementById('step2').style.display = 'block';
+            
+            // Validate required fields
+            const requiredFields = ['name', 'description', 'category', 'version', 'platform'];
+            let missingFields = [];
+            
+            if (hasHeader) {
+              missingFields = requiredFields.filter(field => !csvHeaders.includes(field));
+            }
+            
+            if (missingFields.length > 0) {
+              // Show validation error
+              document.getElementById('csvValidError').style.display = 'block';
+              document.getElementById('csvErrorMessage').textContent = 
+                `Faltan campos requeridos: ${missingFields.join(', ')}`;
+              validCsv = false;
+            } else {
+              // Show success message
+              document.getElementById('csvValidSuccess').style.display = 'block';
+              document.getElementById('csvRowCount').textContent = csvData.length;
+              validCsv = true;
+              
+              // Show preview and mapping sections
+              document.getElementById('previewCard').style.display = 'block';
+              document.getElementById('mappingSection').style.display = 'block';
+              
+              // Display preview
+              displayPreview();
+            }
+          },
+          error: function(error) {
+            console.error('Error parsing CSV:', error);
+            document.getElementById('csvValidError').style.display = 'block';
+            document.getElementById('csvErrorMessage').textContent = 
+              'Error al procesar el archivo: ' + error.message;
+            validCsv = false;
+          }
+        });
+      }
+      
+      // Display CSV preview
+      function displayPreview() {
+        const tableHead = document.getElementById('previewTableHead');
+        const tableBody = document.getElementById('previewTableBody');
+        
+        // Clear previous content
+        tableHead.innerHTML = '';
+        tableBody.innerHTML = '';
+        
+        // Add headers
+        const headerRow = document.createElement('tr');
+        if (csvHeaders.length > 0) {
+          csvHeaders.forEach(header => {
+            const th = document.createElement('th');
+            th.textContent = header;
+            headerRow.appendChild(th);
+          });
+        } else {
+          // If no headers, create numbered columns
+          for (let i = 0; i < csvData[0].length; i++) {
+            const th = document.createElement('th');
+            th.textContent = `Column ${i + 1}`;
+            headerRow.appendChild(th);
+          }
+        }
+        tableHead.appendChild(headerRow);
+        
+        // Add data rows (max 5 rows for preview)
+        const maxRows = Math.min(5, csvData.length);
+        for (let i = 0; i < maxRows; i++) {
+          const row = document.createElement('tr');
+          const rowData = csvData[i];
+          
+          if (csvHeaders.length > 0) {
+            // If using headers
+            csvHeaders.forEach(header => {
+              const td = document.createElement('td');
+              td.textContent = rowData[header] || '';
+              row.appendChild(td);
+            });
+          } else {
+            // Without headers
+            rowData.forEach(cell => {
+              const td = document.createElement('td');
+              td.textContent = cell || '';
+              row.appendChild(td);
+            });
+          }
+          
+          tableBody.appendChild(row);
+        }
+      }
+      
+      // Import CSV data
+      function importCsv() {
+        if (!validCsv) {
+          alert('Por favor valida primero el archivo CSV');
+          return;
+        }
+        
+        // Show step 3
+        document.getElementById('step3').style.display = 'block';
+        
+        // Initialize progress
+        const totalToProcess = csvData.length;
+        document.getElementById('totalToProcess').textContent = totalToProcess;
+        document.getElementById('importResults').innerHTML = '';
+        
+        let processed = 0;
+        let success = 0;
+        let errors = 0;
+        
+        // Get import options
+        const updateExisting = document.getElementById('updateExistingCheck').checked;
+        const skipErrors = document.getElementById('skipErrorsCheck').checked;
+        
+        // Process each row
+        const batchSize = 5; // Process in batches to avoid UI freezing
+        const resultsList = document.getElementById('importResults');
+        
+        function processRows(startIndex) {
+          const endIndex = Math.min(startIndex + batchSize, csvData.length);
+          const promises = [];
+          
+          for (let i = startIndex; i < endIndex; i++) {
+            const row = csvData[i];
+            promises.push(processRow(row, i));
+          }
+          
+          Promise.all(promises).then(() => {
+            processed += promises.length;
+            
+            // Update progress
+            const progressPercent = Math.round((processed / totalToProcess) * 100);
+            document.getElementById('importProgress').style.width = `${progressPercent}%`;
+            document.getElementById('totalProcessed').textContent = processed;
+            document.getElementById('totalSuccess').textContent = success;
+            document.getElementById('totalErrors').textContent = errors;
+            
+            // Continue with next batch if not finished
+            if (endIndex < csvData.length) {
+              setTimeout(() => {
+                processRows(endIndex);
+              }, 100);
+            }
+          });
+        }
+        
+        // Process a single row
+        async function processRow(row, index) {
+          try {
+            // Convert data format
+            const programData = {
+              name: row.name,
+              description: row.description,
+              fullDescription: row.fullDescription || '',
+              category: row.category,
+              version: row.version,
+              platform: row.platform ? row.platform.split('|') : [],
+              size: row.size ? `${row.size} MB` : '',
+              developer: row.developer || '',
+              license: row.license || '',
+              website: row.website || '',
+              downloadLink: row.downloadLink || '',
+              featured: row.featured === 'true' || row.featured === 'yes' || row.featured === '1',
+              tags: row.tags ? row.tags.split(',').map(tag => tag.trim()) : []
+            };
+            
+            // Handle requirements
+            if (row.minRequirements || row.recRequirements) {
+              programData.requirements = {
+                minimal: row.minRequirements || '',
+                recommended: row.recRequirements || ''
+              };
+            }
+            
+            // Handle features
+            if (row.features) {
+              programData.features = row.features.split('|').map(feature => feature.trim());
+            }
+            
+            // Determine if create or update
+            let url = '/api/admin/programs';
+            let method = 'POST';
+            
+            if (updateExisting) {
+              // Check if program exists by name
+              const checkResponse = await fetch(`/api/admin/programs?search=${encodeURIComponent(row.name)}&exact=true`, {
+                method: 'GET',
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                  'Content-Type': 'application/json'
+                }
+              });
+              
+              const checkData = await checkResponse.json();
+              
+              if (checkData.programs && checkData.programs.length > 0) {
+                url = `/api/admin/programs/${checkData.programs[0]._id}`;
+                method = 'PUT';
+              }
+            }
+            
+            // Send the request
+            const response = await fetch(url, {
+              method: method,
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(programData)
+            });
+            
+            const data = await response.json();
+            
+            if (!response.ok) {
+              throw new Error(data.message || 'Error desconocido');
+            }
+            
+            // Add success message
+            const resultItem = document.createElement('div');
+            resultItem.className = 'success mb-1';
+            resultItem.innerHTML = `<i class="fas fa-check-circle me-2"></i> Fila ${index + 1}: ${row.name} - ${method === 'POST' ? 'Creado' : 'Actualizado'} correctamente`;
+            resultsList.appendChild(resultItem);
+            success++;
+            
+            return data;
+          } catch (error) {
+            console.error(`Error processing row ${index + 1}:`, error);
+            
+            // Add error message
+            const resultItem = document.createElement('div');
+            resultItem.className = 'error mb-1';
+            resultItem.innerHTML = `<i class="fas fa-times-circle me-2"></i> Fila ${index + 1}: ${row.name || `Registro #${index + 1}`} - ${error.message}`;
+            resultsList.appendChild(resultItem);
+            errors++;
+            
+            // If not skipping errors, throw to stop processing
+            if (!skipErrors) {
+              throw error;
+            }
+          }
+        }
+        
+        // Start processing
+        processRows(0);
+      }
+    });
+  </script>
+</body>
+</html>

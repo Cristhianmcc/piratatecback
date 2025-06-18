@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Administración - Pirata Tecnológico</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f8f9fa;
+    }
+    
+    .sidebar {
+      min-height: 100vh;
+      background: #212529;
+      color: #fff;
+    }
+    
+    .brand {
+      padding: 15px;
+      font-size: 22px;
+      font-weight: bold;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .nav-link {
+      color: rgba(255, 255, 255, 0.7);
+      padding: 12px 20px;
+      border-radius: 5px;
+      margin: 5px 15px;
+    }
+    
+    .nav-link:hover,
+    .nav-link.active {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+    
+    .content-header {
+      padding: 20px;
+      border-bottom: 1px solid #dee2e6;
+      background: #fff;
+    }
+    
+    .card {
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+    
+    .stats-card {
+      border-left: 5px solid;
+      min-height: 100px;
+    }
+    
+    .stats-icon {
+      font-size: 3rem;
+      opacity: 0.3;
+    }
+    
+    .stats-number {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="row">
+      <!-- Sidebar -->
+      <div class="col-md-3 col-lg-2 p-0 sidebar">
+        <div class="brand d-flex align-items-center">
+          <i class="fas fa-skull-crossbones me-2"></i>
+          <span>Pirata Tech</span>
+        </div>
+          <div class="mt-4">
+          <p class="text-light px-4 mb-2 opacity-75">MENÚ</p>
+          <ul class="nav flex-column">
+            <li class="nav-item">
+              <a class="nav-link active" href="#"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="programs.html"><i class="fas fa-laptop-code me-2"></i>Programas</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="upload.html"><i class="fas fa-upload me-2"></i>Subir Programa</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="images.html"><i class="fas fa-images me-2"></i>Gestionar Imágenes</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="import.html"><i class="fas fa-file-import me-2"></i>Importar CSV</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="settings.html"><i class="fas fa-cog me-2"></i>Configuración</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      
+      <!-- Main Content -->
+      <div class="col-md-9 col-lg-10 ms-auto">
+        <div class="content-header d-flex justify-content-between align-items-center">
+          <h1 class="h3">Dashboard</h1>
+          <div class="d-flex align-items-center">
+            <div class="dropdown">
+              <button class="btn btn-outline-dark dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                <i class="fas fa-user-circle me-1"></i> Admin
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Perfil</a></li>
+                <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Configuración</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="#" id="logoutBtn"><i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        
+        <div class="container-fluid py-4">
+          <div class="row">
+            <div class="col-xl-3 col-md-6">
+              <div class="card stats-card border-primary">
+                <div class="card-body d-flex align-items-center">
+                  <div>
+                    <h6 class="text-muted">Total Programas</h6>
+                    <p class="stats-number mb-0" id="totalPrograms">0</p>
+                  </div>
+                  <i class="fas fa-laptop ms-auto stats-icon text-primary"></i>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-xl-3 col-md-6">
+              <div class="card stats-card border-success">
+                <div class="card-body d-flex align-items-center">
+                  <div>
+                    <h6 class="text-muted">Categorías</h6>
+                    <p class="stats-number mb-0" id="totalCategories">0</p>
+                  </div>
+                  <i class="fas fa-folder ms-auto stats-icon text-success"></i>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-xl-3 col-md-6">
+              <div class="card stats-card border-warning">
+                <div class="card-body d-flex align-items-center">
+                  <div>
+                    <h6 class="text-muted">Uploads Hoy</h6>
+                    <p class="stats-number mb-0" id="todayUploads">0</p>
+                  </div>
+                  <i class="fas fa-cloud-upload-alt ms-auto stats-icon text-warning"></i>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-xl-3 col-md-6">
+              <div class="card stats-card border-info">
+                <div class="card-body d-flex align-items-center">
+                  <div>
+                    <h6 class="text-muted">Espacio usado</h6>
+                    <p class="stats-number mb-0" id="storageUsed">0 MB</p>
+                  </div>
+                  <i class="fas fa-database ms-auto stats-icon text-info"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="row mt-4">
+            <div class="col-12">
+              <div class="card">
+                <div class="card-header bg-white">
+                  <h5 class="mb-0">Programas recientes</h5>
+                </div>
+                <div class="card-body">
+                  <div class="table-responsive">
+                    <table class="table table-hover">
+                      <thead>
+                        <tr>
+                          <th width="60">#</th>
+                          <th>Nombre</th>
+                          <th>Categoría</th>
+                          <th>Versión</th>
+                          <th>Fecha</th>
+                          <th>Acciones</th>
+                        </tr>
+                      </thead>
+                      <tbody id="recentProgramsList">
+                        <tr>
+                          <td colspan="6" class="text-center py-4">Cargando programas...</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Verificar autenticación
+      const token = localStorage.getItem('adminToken');
+      if (!token) {
+        window.location.href = '/admin/login.html';
+        return;
+      }
+      
+      // Logout
+      document.getElementById('logoutBtn').addEventListener('click', function(e) {
+        e.preventDefault();
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('adminUser');
+        window.location.href = '/admin/login.html';
+      });
+      
+      // Cargar datos del dashboard
+      loadDashboardData();
+    });
+    
+    // Función para cargar datos del dashboard
+    function loadDashboardData() {
+      const token = localStorage.getItem('adminToken');
+      
+      fetch('/api/admin/stats/dashboard', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => {
+        if (!response.ok) {
+          if (response.status === 401) {
+            localStorage.removeItem('adminToken');
+            window.location.href = '/admin/login.html';
+          }
+          throw new Error('Error al cargar datos del dashboard');
+        }
+        return response.json();
+      })
+      .then(data => {
+        document.getElementById('totalPrograms').textContent = data.totalPrograms || 0;
+        document.getElementById('totalCategories').textContent = data.categoriesCount || 0;
+        document.getElementById('todayUploads').textContent = data.todayUploads || 0;
+        document.getElementById('storageUsed').textContent = data.storageUsed || '0 MB';
+        
+        // Mostrar programas recientes
+        const programsList = document.getElementById('recentProgramsList');
+        
+        if (data.recentPrograms && data.recentPrograms.length > 0) {
+          let html = '';
+          data.recentPrograms.forEach((program, index) => {
+            html += `
+              <tr>
+                <td>${index + 1}</td>
+                <td>${program.name}</td>
+                <td><span class="badge bg-secondary">${program.category}</span></td>
+                <td>${program.version || 'N/A'}</td>
+                <td>${new Date(program.createdAt).toLocaleDateString()}</td>
+                <td>
+                  <button class="btn btn-sm btn-outline-primary me-1"><i class="fas fa-edit"></i></button>
+                  <button class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+                </td>
+              </tr>
+            `;
+          });
+          
+          programsList.innerHTML = html;
+        } else {
+          programsList.innerHTML = '<tr><td colspan="6" class="text-center py-4">No hay programas disponibles</td></tr>';
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        document.getElementById('recentProgramsList').innerHTML = 
+          '<tr><td colspan="6" class="text-center py-4 text-danger">Error al cargar datos. Intente nuevamente más tarde.</td></tr>';
+      });
+    }
+  </script>
+</body>
+</html>

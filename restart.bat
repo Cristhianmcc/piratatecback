@@ -1,0 +1,9 @@
+@echo off
+echo Reiniciando servidor...
+taskkill /IM node.exe /F
+
+echo Limpiando cache del navegador...
+timeout /t 2
+
+echo Iniciando servidor...
+npm run dev

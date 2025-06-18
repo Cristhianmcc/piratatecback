@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Panel de Administración</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f5f5f5;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .login-container {
+      max-width: 400px;
+      width: 100%;
+      padding: 20px;
+    }
+    
+    .card {
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .card-header {
+      background-color: #212529;
+      color: white;
+      border-radius: 10px 10px 0 0 !important;
+      padding: 20px;
+    }
+    
+    .login-logo {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .login-logo h1 {
+      font-size: 24px;
+      margin-bottom: 0;
+    }
+    
+    .form-label {
+      font-weight: 500;
+    }
+    
+    .form-control:focus {
+      box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+    
+    .btn-login {
+      width: 100%;
+      padding: 10px;
+      font-weight: 500;
+    }
+    
+    .alert {
+      margin-bottom: 20px;
+      display: none;
+    }
+    
+    .spinner-border {
+      width: 1rem;
+      height: 1rem;
+      margin-right: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-logo">
+      <h1>🏴‍☠️ Pirata Tecnológico</h1>
+      <p class="text-muted">Panel de Administración</p>
+    </div>
+    
+    <div class="card">
+      <div class="card-header">
+        <h5 class="m-0"><i class="fas fa-lock me-2"></i>Acceso Administrador</h5>
+      </div>
+      
+      <div class="card-body p-4">
+        <div class="alert alert-danger" id="loginError" role="alert">
+          <i class="fas fa-exclamation-circle me-2"></i>
+          <span id="errorMessage">Credenciales incorrectas</span>
+        </div>
+          <form id="loginForm">
+          <div class="mb-3">
+            <label for="loginEmail" class="form-label">Correo Electrónico</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+              <input type="email" class="form-control" id="loginEmail" value="admin@admin.com" required>
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label for="loginPassword" class="form-label">Contraseña</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-key"></i></span>
+              <input type="password" class="form-control" id="loginPassword" value="admin123" required>
+              <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                <i class="fas fa-eye"></i>
+              </button>
+            </div>
+          </div>
+          
+          <div class="mb-3 form-check">
+            <input type="checkbox" class="form-check-input" id="rememberMe">
+            <label class="form-check-label" for="rememberMe">Recordarme</label>
+          </div>
+          
+          <button type="submit" class="btn btn-primary btn-login" id="loginBtn">
+            <span id="loginSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+            Iniciar Sesión
+          </button>
+        </form>
+      </div>
+      
+      <div class="card-footer bg-white text-center py-3">
+        <a href="/" class="text-decoration-none">
+          <i class="fas fa-arrow-left me-1"></i> Volver al sitio principal
+        </a>
+      </div>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Verificar si ya hay una sesión activa
+      const authToken = localStorage.getItem('adminToken');
+      if (authToken) {
+        window.location.href = '/admin';
+        return;
+      }
+      
+      // Manejo del formulario de login
+      document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Mostrar spinner y deshabilitar botón
+        const loginBtn = document.getElementById('loginBtn');
+        const loginSpinner = document.getElementById('loginSpinner');
+        loginBtn.disabled = true;
+        loginSpinner.classList.remove('d-none');
+        
+        // Ocultar mensaje de error previo
+        document.getElementById('loginError').style.display = 'none';
+        
+        // Obtener credenciales
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+        
+        // Hacer petición a la API
+        console.log('Enviando petición a /api/admin/login');
+        fetch('/api/admin/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, password })
+        })
+        .then(response => {
+          return response.json().then(data => {
+            if (!response.ok) {
+              throw new Error(data.message || 'Error al iniciar sesión');
+            }
+            return data;
+          });
+        })
+        .then(data => {
+          // Guardar token y redirigir
+          localStorage.setItem('adminToken', data.token);
+          localStorage.setItem('adminUser', JSON.stringify(data.user));
+          console.log('Login exitoso, redirigiendo...');
+          window.location.href = '/admin/dashboard.html';
+        })
+        .catch(error => {
+          // Mostrar error
+          document.getElementById('errorMessage').textContent = error.message;
+          document.getElementById('loginError').style.display = 'block';
+          
+          // Restaurar botón
+          loginBtn.disabled = false;
+          loginSpinner.classList.add('d-none');
+        });
+      });
+      
+      // Toggle para mostrar/ocultar contraseña
+      document.getElementById('togglePassword').addEventListener('click', function() {
+        const passwordInput = document.getElementById('loginPassword');
+        const icon = this.querySelector('i');
+        
+        if (passwordInput.type === 'password') {
+          passwordInput.type = 'text';
+          icon.classList.remove('fa-eye');
+          icon.classList.add('fa-eye-slash');
+        } else {
+          passwordInput.type = 'password';
+          icon.classList.remove('fa-eye-slash');
+          icon.classList.add('fa-eye');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

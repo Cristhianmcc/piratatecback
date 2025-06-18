@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editar Programa - Pirata Tecnológico</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #0d6efd;
+      --secondary: #6c757d;
+      --success: #198754;
+      --warning: #ffc107;
+      --danger: #dc3545;
+      --dark: #212529;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f8f9fa;
+    }
+    
+    .sidebar {
+      min-height: 100vh;
+      background: #212529;
+      color: #fff;
+      position: fixed;
+      width: 250px;
+      z-index: 1000;
+      padding-top: 10px;
+      overflow-y: auto;
+    }
+    
+    .main-content {
+      margin-left: 250px;
+      padding: 20px;
+    }
+    
+    .brand {
+      padding: 15px;
+      font-size: 22px;
+      font-weight: bold;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .nav-link {
+      color: rgba(255, 255, 255, 0.7);
+      padding: 12px 20px;
+      border-radius: 5px;
+      margin: 5px 15px;
+      display: flex;
+      align-items: center;
+    }
+    
+    .nav-link i {
+      margin-right: 10px;
+      width: 20px;
+      text-align: center;
+    }
+    
+    .nav-link:hover,
+    .nav-link.active {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+    
+    .card {
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      margin-bottom: 25px;
+    }
+    
+    .card-header {
+      border-bottom: 1px solid #f2f2f2;
+      background: #fff;
+      padding: 15px 20px;
+      font-weight: 600;
+    }
+    
+    .section-title {
+      border-bottom: 1px solid #e9ecef;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+    }
+    
+    .thumbnail-preview {
+      max-width: 150px;
+      max-height: 150px;
+      border: 1px solid #dee2e6;
+      border-radius: 5px;
+      padding: 2px;
+    }
+    
+    .progress {
+      height: 8px;
+      margin-top: 8px;
+    }
+    
+    .top-bar {
+      background: #fff;
+      padding: 15px 20px;
+      border-bottom: 1px solid #dee2e6;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .alert-float {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      max-width: 400px;
+      z-index: 9999;
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="brand d-flex align-items-center">
+      <i class="fas fa-skull-crossbones me-2"></i>
+      <span>Pirata Tech</span>
+    </div>
+    
+    <div class="mt-4">
+      <p class="text-light px-4 mb-2 opacity-75 small">MENÚ</p>
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <a class="nav-link" href="dashboard.html">
+            <i class="fas fa-tachometer-alt"></i>
+            <span>Dashboard</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="programs.html">
+            <i class="fas fa-laptop-code"></i>
+            <span>Programas</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="upload.html">
+            <i class="fas fa-upload"></i>
+            <span>Subir Programa</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="images.html">
+            <i class="fas fa-images"></i>
+            <span>Gestionar Imágenes</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="import.html">
+            <i class="fas fa-file-import"></i>
+            <span>Importar CSV</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="settings.html">
+            <i class="fas fa-cog"></i>
+            <span>Configuración</span>
+          </a>
+        </li>
+        <li class="nav-item mt-3">
+          <a class="nav-link text-danger" href="#" id="logoutBtn">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Cerrar Sesión</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content pb-5">
+    <!-- Top Bar -->
+    <div class="top-bar d-flex justify-content-between align-items-center">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+          <li class="breadcrumb-item"><a href="dashboard.html">Inicio</a></li>
+          <li class="breadcrumb-item"><a href="programs.html">Programas</a></li>
+          <li class="breadcrumb-item active">Editar Programa</li>
+        </ol>
+      </nav>
+      
+      <div class="d-flex align-items-center">
+        <span class="me-3" id="username"></span>
+        <div class="dropdown">
+          <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+            <i class="fas fa-user-circle"></i>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="profile.html"><i class="fas fa-user me-2"></i>Mi Perfil</a></li>
+            <li><a class="dropdown-item" href="settings.html"><i class="fas fa-cog me-2"></i>Configuración</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#" id="sidebarLogoutBtn"><i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Page Content -->
+    <div class="container-fluid">
+      <!-- Page Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0" id="programTitle">Editar Programa</h1>
+        <a href="programs.html" class="btn btn-outline-secondary">
+          <i class="fas fa-arrow-left me-1"></i> Volver a Lista
+        </a>
+      </div>
+
+      <div class="alert alert-info" id="loadingAlert">
+        <div class="d-flex align-items-center">
+          <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+          <div>Cargando información del programa...</div>
+        </div>
+      </div>
+      
+      <!-- Alerta flotante para notificaciones -->
+      <div id="alertContainer"></div>
+      
+      <div id="programContent" style="display:none;">
+        <!-- Form -->
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="fas fa-edit me-2"></i>Editar Información</span>
+            <span class="text-muted small">Todos los campos con * son obligatorios</span>
+          </div>
+          <div class="card-body">
+            <form id="editForm">
+              <h5 class="section-title">Información Básica</h5>
+              <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                  <label for="name" class="form-label">Nombre del Programa *</label>
+                  <input type="text" class="form-control" id="name" name="name" required>
+                </div>
+                <div class="col-md-3">
+                  <label for="version" class="form-label">Versión *</label>
+                  <input type="text" class="form-control" id="version" name="version" required>
+                </div>
+                <div class="col-md-3">
+                  <label for="category" class="form-label">Categoría *</label>
+                  <select class="form-select" id="category" name="category" required>
+                    <option value="">Seleccionar...</option>
+                    <option value="Desarrollo">Desarrollo</option>
+                    <option value="Diseño">Diseño</option>
+                    <option value="Seguridad">Seguridad</option>
+                    <option value="Multimedia">Multimedia</option>
+                    <option value="Productividad">Productividad</option>
+                    <option value="Juegos">Juegos</option>
+                    <option value="Utilidades">Utilidades</option>
+                    <option value="Internet">Internet</option>
+                    <option value="Comunicación">Comunicación</option>
+                    <option value="Educación">Educación</option>
+                    <option value="Negocios">Negocios</option>
+                    <option value="Fotografía">Fotografía</option>
+                    <option value="Sistema">Sistema</option>
+                    <option value="Otros">Otros</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label for="developer" class="form-label">Desarrollador *</label>
+                  <input type="text" class="form-control" id="developer" name="developer" required>
+                </div>
+                <div class="col-md-3">
+                  <label for="license" class="form-label">Licencia</label>
+                  <input type="text" class="form-control" id="license" name="license">
+                </div>
+                <div class="col-md-3">
+                  <label for="size" class="form-label">Tamaño *</label>
+                  <div class="input-group">
+                    <input type="text" class="form-control" id="size" name="size" required>
+                    <span class="input-group-text">MB</span>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label for="website" class="form-label">Sitio Web</label>
+                  <input type="url" class="form-control" id="website" name="website" placeholder="https://">
+                </div>
+                <div class="col-md-3">
+                  <label for="releaseDate" class="form-label">Fecha de Lanzamiento</label>
+                  <input type="date" class="form-control" id="releaseDate" name="releaseDate">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label d-block">Destacado</label>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="featured" name="featured">
+                    <label class="form-check-label" for="featured">Mostrar como destacado</label>
+                  </div>
+                </div>
+                <div class="col-md-12">
+                  <label for="tags" class="form-label">Etiquetas (separadas por comas)</label>
+                  <input type="text" class="form-control" id="tags" name="tags" placeholder="Ejemplo: utilidad, herramientas, windows">
+                </div>
+              </div>
+              
+              <h5 class="section-title">Plataformas</h5>
+              <div class="mb-4">
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="platform1" name="platform" value="Windows">
+                  <label class="form-check-label" for="platform1">Windows</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="platform2" name="platform" value="MacOS">
+                  <label class="form-check-label" for="platform2">MacOS</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="platform3" name="platform" value="Linux">
+                  <label class="form-check-label" for="platform3">Linux</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="platform4" name="platform" value="Android">
+                  <label class="form-check-label" for="platform4">Android</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="platform5" name="platform" value="iOS">
+                  <label class="form-check-label" for="platform5">iOS</label>
+                </div>
+              </div>
+              
+              <h5 class="section-title">Descripciones</h5>
+              <div class="row g-3 mb-4">
+                <div class="col-md-12">
+                  <label for="description" class="form-label">Descripción Corta *</label>
+                  <textarea class="form-control" id="description" name="description" rows="2" maxlength="200" required></textarea>
+                  <div class="form-text">Máximo 200 caracteres</div>
+                </div>
+                <div class="col-md-12">
+                  <label for="fullDescription" class="form-label">Descripción Completa</label>
+                  <textarea class="form-control" id="fullDescription" name="fullDescription" rows="5"></textarea>
+                </div>
+              </div>
+              
+              <h5 class="section-title">Características</h5>
+              <div class="mb-4">
+                <div id="featuresContainer" class="mb-2">
+                  <!-- Características se agregarán aquí -->
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-primary" id="addFeatureBtn">
+                  <i class="fas fa-plus-circle me-1"></i>Agregar Característica
+                </button>
+              </div>
+              
+              <h5 class="section-title">Enlaces de Descarga</h5>
+              <div class="mb-4">
+                <label for="downloadLink" class="form-label">Enlace de Descarga Principal *</label>
+                <input type="url" class="form-control" id="downloadLink" name="downloadLink" placeholder="https://" required>
+                
+                <div id="mirrorsContainer" class="mt-3">
+                  <!-- Enlaces de espejo se agregarán aquí -->
+                </div>
+                
+                <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="addMirrorBtn">
+                  <i class="fas fa-plus-circle me-1"></i>Agregar Enlace Alternativo
+                </button>
+              </div>
+              
+              <h5 class="section-title">Imágenes</h5>
+              <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                  <label class="form-label">Imagen Principal (Thumbnail)</label>
+                  <div>
+                    <img id="thumbnailPreview" src="" alt="Vista previa" class="thumbnail-preview mb-2">
+                  </div>
+                  <a href="#" class="btn btn-sm btn-outline-primary" id="manageImagesBtn">
+                    <i class="fas fa-images me-1"></i>Gestionar Imágenes
+                  </a>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Capturas de Pantalla</label>
+                  <div id="screenshotsPreview" class="row g-2">
+                    <!-- Previsualización de capturas -->
+                  </div>
+                  <div class="mt-2">
+                    <span class="badge bg-secondary" id="screenshotsCount">0 capturas</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                <button type="button" class="btn btn-outline-secondary me-md-2" onclick="window.location.href='programs.html'">
+                  <i class="fas fa-times me-1"></i>Cancelar
+                </button>
+                <button type="submit" class="btn btn-primary" id="saveButton">
+                  <i class="fas fa-save me-1"></i>Guardar Cambios
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Comprobar autenticación
+      const token = localStorage.getItem('adminToken');
+      const user = JSON.parse(localStorage.getItem('adminUser') || '{}');
+      
+      if (!token) {
+        window.location.href = 'login.html';
+        return;
+      }
+      
+      // Establecer nombre de usuario
+      if (user.username || user.name) {
+        document.getElementById('username').textContent = `Hola, ${user.name || user.username}`;
+      }
+      
+      // Logout functionality
+      document.getElementById('logoutBtn').addEventListener('click', logout);
+      document.getElementById('sidebarLogoutBtn').addEventListener('click', logout);
+      
+      function logout(e) {
+        e.preventDefault();
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('adminUser');
+        window.location.href = 'login.html';
+      }
+
+      // Variables globales
+      let programId = null;
+      let programData = null;
+
+      // Event listeners
+      document.getElementById('editForm').addEventListener('submit', saveChanges);
+      document.getElementById('addFeatureBtn').addEventListener('click', addFeatureField);
+      document.getElementById('addMirrorBtn').addEventListener('click', addMirrorField);
+
+      // Obtener el ID del programa de la URL
+      const urlParams = new URLSearchParams(window.location.search);
+      programId = urlParams.get('id');
+
+      if (!programId) {
+        // Si no hay ID de programa, redirigir a la lista
+        window.location.href = 'programs.html';
+        return;
+      } else {
+        // Cargar datos del programa
+        loadProgramData();
+      }
+      
+      // Gestionar imágenes
+      document.getElementById('manageImagesBtn').addEventListener('click', function(e) {
+        e.preventDefault();
+        window.location.href = `images.html?id=${programId}`;
+      });
+
+      // Cargar datos del programa
+      function loadProgramData() {
+        fetch(`/api/admin/programs/${programId}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`Error: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          programData = data.program;
+          
+          // Actualizar título de la página
+          document.getElementById('programTitle').textContent = `Editar: ${programData.name}`;
+          
+          // Llenar el formulario con los datos del programa
+          fillFormWithProgramData(programData);
+          
+          // Mostrar contenido del programa
+          document.getElementById('loadingAlert').style.display = 'none';
+          document.getElementById('programContent').style.display = 'block';
+          
+          // Actualizar las previsualización de imágenes
+          updateImagePreview();
+        })
+        .catch(error => {
+          document.getElementById('loadingAlert').classList.remove('alert-info');
+          document.getElementById('loadingAlert').classList.add('alert-danger');
+          document.getElementById('loadingAlert').innerHTML = `
+            <i class="fas fa-exclamation-circle me-2"></i>
+            Error al cargar el programa: ${error.message}
+            <div class="mt-2">
+              <a href="programs.html" class="btn btn-sm btn-primary">Volver a programas</a>
+            </div>
+          `;
+        });
+      }
+      
+      // Llenar el formulario con los datos del programa
+      function fillFormWithProgramData(program) {
+        // Campos básicos
+        document.getElementById('name').value = program.name || '';
+        document.getElementById('version').value = program.version || '';
+        document.getElementById('category').value = program.category || '';
+        document.getElementById('developer').value = program.developer || '';
+        document.getElementById('license').value = program.license || '';
+        
+        // Extraer el tamaño numérico sin la unidad
+        const sizeMatch = program.size ? program.size.match(/(\d+(\.\d+)?)/g) : null;
+        document.getElementById('size').value = sizeMatch ? sizeMatch[0] : '';
+        
+        document.getElementById('website').value = program.website || '';
+        document.getElementById('featured').checked = program.featured || false;
+        
+        // Fecha de lanzamiento
+        if (program.releaseDate) {
+          const date = new Date(program.releaseDate);
+          const formattedDate = date.toISOString().split('T')[0];
+          document.getElementById('releaseDate').value = formattedDate;
+        }
+        
+        // Tags (etiquetas)
+        if (program.tags && Array.isArray(program.tags)) {
+          document.getElementById('tags').value = program.tags.join(', ');
+        }
+        
+        // Plataformas
+        const platforms = program.platform || [];
+        document.querySelectorAll('input[name="platform"]').forEach(input => {
+          input.checked = platforms.includes(input.value);
+        });
+        
+        // Descripciones
+        document.getElementById('description').value = program.description || '';
+        document.getElementById('fullDescription').value = program.fullDescription || '';
+        
+        // Características
+        const featuresContainer = document.getElementById('featuresContainer');
+        featuresContainer.innerHTML = '';
+        
+        if (program.features && Array.isArray(program.features) && program.features.length > 0) {
+          program.features.forEach(feature => {
+            addFeatureField(feature);
+          });
+        } else {
+          // Agregar al menos un campo vacío
+          addFeatureField();
+        }
+        
+        // Enlaces
+        document.getElementById('downloadLink').value = program.downloadLink || '';
+        
+        // Enlaces espejo
+        const mirrorsContainer = document.getElementById('mirrorsContainer');
+        mirrorsContainer.innerHTML = '';
+        
+        if (program.mirrors && Array.isArray(program.mirrors) && program.mirrors.length > 0) {
+          program.mirrors.forEach(mirror => {
+            addMirrorField(mirror);
+          });
+        }
+      }
+      
+      // Actualizar vista previa de imagen
+      function updateImagePreview() {
+        // Thumbnail
+        const thumbnailPreview = document.getElementById('thumbnailPreview');
+        if (programData.thumbnail) {
+          thumbnailPreview.src = programData.thumbnail;
+          thumbnailPreview.style.display = 'block';
+        } else {
+          thumbnailPreview.src = 'https://via.placeholder.com/150?text=No+Imagen';
+          thumbnailPreview.style.display = 'block';
+        }
+        
+        // Screenshots
+        const screenshotsPreview = document.getElementById('screenshotsPreview');
+        screenshotsPreview.innerHTML = '';
+        
+        const screenshotsCount = document.getElementById('screenshotsCount');
+        
+        if (programData.screenshots && programData.screenshots.length > 0) {
+          screenshotsCount.textContent = `${programData.screenshots.length} capturas`;
+          
+          // Mostrar solo las primeras 4 capturas en la previsualización
+          const maxPreview = Math.min(programData.screenshots.length, 4);
+          for (let i = 0; i < maxPreview; i++) {
+            const col = document.createElement('div');
+            col.className = 'col-3';
+            col.innerHTML = `
+              <img src="${programData.screenshots[i]}" class="img-thumbnail w-100" style="height: 60px; object-fit: cover;">
+            `;
+            screenshotsPreview.appendChild(col);
+          }
+          
+          // Si hay más capturas, mostrar indicador
+          if (programData.screenshots.length > 4) {
+            const col = document.createElement('div');
+            col.className = 'col-3';
+            col.innerHTML = `
+              <div class="d-flex justify-content-center align-items-center bg-light h-100 rounded">
+                <span class="text-muted">+${programData.screenshots.length - 4} más</span>
+              </div>
+            `;
+            screenshotsPreview.appendChild(col);
+          }
+        } else {
+          screenshotsCount.textContent = '0 capturas';
+          screenshotsPreview.innerHTML = `
+            <div class="col-12">
+              <div class="alert alert-light text-center mb-0">
+                <small class="text-muted">No hay capturas disponibles</small>
+              </div>
+            </div>
+          `;
+        }
+      }
+      
+      // Función para agregar campo de característica
+      function addFeatureField(value = '') {
+        const featuresContainer = document.getElementById('featuresContainer');
+        
+        const featureGroup = document.createElement('div');
+        featureGroup.className = 'feature-group mb-2';
+        
+        featureGroup.innerHTML = `
+          <div class="input-group input-group-sm">
+            <span class="input-group-text">
+              <i class="fas fa-check-circle"></i>
+            </span>
+            <input type="text" class="form-control" name="feature" value="${value}" placeholder="Característica del programa">
+            <button class="btn btn-outline-danger remove-feature" type="button">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        `;
+        
+        featuresContainer.appendChild(featureGroup);
+        
+        // Agregar evento para eliminar característica
+        featureGroup.querySelector('.remove-feature').addEventListener('click', function() {
+          featuresContainer.removeChild(featureGroup);
+        });
+      }
+      
+      // Función para agregar campo de enlace espejo
+      function addMirrorField(mirror = { name: '', url: '' }) {
+        const mirrorsContainer = document.getElementById('mirrorsContainer');
+        
+        const mirrorGroup = document.createElement('div');
+        mirrorGroup.className = 'mirror-group mb-3';
+        
+        mirrorGroup.innerHTML = `
+          <div class="row g-2">
+            <div class="col-md-4">
+              <input type="text" class="form-control form-control-sm" name="mirrorName" value="${mirror.name}" placeholder="Nombre (ej: Mega, MediaFire)">
+            </div>
+            <div class="col-md-7">
+              <input type="url" class="form-control form-control-sm" name="mirrorUrl" value="${mirror.url}" placeholder="URL">
+            </div>
+            <div class="col-md-1">
+              <button type="button" class="btn btn-sm btn-outline-danger w-100 remove-mirror">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+          </div>
+        `;
+        
+        mirrorsContainer.appendChild(mirrorGroup);
+        
+        // Agregar evento para eliminar espejo
+        mirrorGroup.querySelector('.remove-mirror').addEventListener('click', function() {
+          mirrorsContainer.removeChild(mirrorGroup);
+        });
+      }
+      
+      // Guardar cambios
+      function saveChanges(e) {
+        e.preventDefault();
+        
+        // Deshabilitar el botón de guardar para prevenir múltiples envíos
+        const saveButton = document.getElementById('saveButton');
+        const originalButtonText = saveButton.innerHTML;
+        saveButton.disabled = true;
+        saveButton.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Guardando...';
+        
+        // Recopilar datos del formulario
+        const formData = {
+          name: document.getElementById('name').value,
+          version: document.getElementById('version').value,
+          category: document.getElementById('category').value,
+          developer: document.getElementById('developer').value,
+          license: document.getElementById('license').value,
+          size: document.getElementById('size').value + ' MB',
+          website: document.getElementById('website').value,
+          featured: document.getElementById('featured').checked,
+          description: document.getElementById('description').value,
+          fullDescription: document.getElementById('fullDescription').value,
+          downloadLink: document.getElementById('downloadLink').value
+        };
+        
+        // Fecha de lanzamiento
+        const releaseDateInput = document.getElementById('releaseDate').value;
+        if (releaseDateInput) {
+          formData.releaseDate = new Date(releaseDateInput).toISOString();
+        }
+        
+        // Plataformas
+        const platformInputs = document.querySelectorAll('input[name="platform"]:checked');
+        formData.platform = Array.from(platformInputs).map(input => input.value);
+        
+        // Etiquetas
+        const tagsInput = document.getElementById('tags').value;
+        if (tagsInput) {
+          formData.tags = tagsInput.split(',').map(tag => tag.trim()).filter(Boolean);
+        }
+        
+        // Características
+        const featureInputs = document.querySelectorAll('input[name="feature"]');
+        formData.features = Array.from(featureInputs)
+          .map(input => input.value.trim())
+          .filter(Boolean);
+        
+        // Enlaces espejo
+        const mirrorNames = document.querySelectorAll('input[name="mirrorName"]');
+        const mirrorUrls = document.querySelectorAll('input[name="mirrorUrl"]');
+        formData.mirrors = [];
+        
+        for (let i = 0; i < mirrorNames.length; i++) {
+          const name = mirrorNames[i].value.trim();
+          const url = mirrorUrls[i].value.trim();
+          
+          if (name && url) {
+            formData.mirrors.push({ name, url });
+          }
+        }
+        
+        // Mantener las imágenes existentes
+        formData.thumbnail = programData.thumbnail;
+        formData.screenshots = programData.screenshots;
+        
+        // Enviar datos al servidor
+        fetch(`/api/admin/programs/${programId}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(formData)
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`Error: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          // Actualizar datos locales
+          programData = data.program;
+          
+          // Mostrar notificación
+          showNotification('Cambios guardados correctamente', 'success');
+          
+          // Recargar la página después de un pequeño retraso
+          setTimeout(() => {
+            loadProgramData();
+          }, 1000);
+        })
+        .catch(error => {
+          console.error('Error al guardar cambios:', error);
+          showNotification(`Error al guardar cambios: ${error.message}`, 'danger');
+        })
+        .finally(() => {
+          // Restaurar botón
+          saveButton.disabled = false;
+          saveButton.innerHTML = originalButtonText;
+        });
+      }
+      
+      // Mostrar notificación
+      function showNotification(message, type = 'success') {
+        const alertContainer = document.getElementById('alertContainer');
+        
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type} alert-dismissible alert-float fade show`;
+        alert.innerHTML = `
+          ${type === 'success' ? '<i class="fas fa-check-circle me-2"></i>' : '<i class="fas fa-exclamation-circle me-2"></i>'}
+          ${message}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+        
+        alertContainer.appendChild(alert);
+        
+        // Eliminar la notificación después de 5 segundos
+        setTimeout(() => {
+          if (alert.parentNode) {
+            alert.classList.remove('show');
+            setTimeout(() => {
+              if (alert.parentNode) {
+                alertContainer.removeChild(alert);
+              }
+            }, 500);
+          }
+        }, 5000);
+      }
+    });
+  </script>
+</body>
+</html>
