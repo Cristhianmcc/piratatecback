@@ -23,7 +23,9 @@ const app = express();
 
 // Configuración CORS
 const corsOptions = {
-  origin: '*', // Permitir todas las solicitudes para facilitar desarrollo
+  origin: process.env.NODE_ENV === 'production' 
+    ? process.env.CORS_ORIGIN.split(',') // En producción, usar los orígenes definidos
+    : '*', // En desarrollo, permitir todas las solicitudes
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true,
   optionsSuccessStatus: 204,

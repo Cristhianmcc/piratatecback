@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: pirata-backend
+    env: node
+    plan: free # Puedes cambiar a un plan de pago si necesitas más recursos
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 8080 # Render asignará un puerto automáticamente, pero es bueno tener un valor por defecto
+      - key: JWT_SECRET
+        fromEnv: JWT_SECRET
+      - key: MONGODB_URI
+        fromEnv: MONGODB_URI # Deberás configurar esto en el dashboard de Render
+      - key: CORS_ORIGIN
+        fromEnv: CORS_ORIGIN # URL de tu frontend
+      - key: BASE_URL
+        fromEnv: BASE_URL # URL de tu backend en Render
+      - key: CLOUDINARY_CLOUD_NAME
+        fromEnv: CLOUDINARY_CLOUD_NAME
+      - key: CLOUDINARY_API_KEY
+        fromEnv: CLOUDINARY_API_KEY
+      - key: CLOUDINARY_API_SECRET
+        fromEnv: CLOUDINARY_API_SECRET
+    autoDeploy: true

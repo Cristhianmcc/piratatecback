@@ -2,10 +2,14 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI, {
-      // Estas opciones ya no son necesarias en Mongoose 8, pero las incluyo por compatibilidad
-      // con versiones anteriores si decides cambiar la versión de Mongoose
-    });
+    // Usar la URL de MongoDB según el entorno
+    const mongoURI = process.env.MONGODB_URI;
+    
+    if (!mongoURI) {
+      throw new Error('MONGODB_URI no está definida en las variables de entorno');
+    }
+    
+    const conn = await mongoose.connect(mongoURI);
     
     console.log(`MongoDB conectado: ${conn.connection.host}`);
     
